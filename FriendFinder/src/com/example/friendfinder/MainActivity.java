@@ -11,10 +11,10 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 	}
-
-	// Trololol
-	//coucou2
-	//lol
+//coucou
+	//loloooloo
+	//seb seb
+	//dazdazda
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -23,4 +23,3 @@ public class MainActivity extends Activity {
 	}
 
 }
-
