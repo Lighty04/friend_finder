@@ -13,15 +13,34 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		DatabaseHelper.initializeParse(MainActivity.this);
+=======
+package com.example.friendfinder;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.widget.TextView;
+
+import com.parse.ParseUser;
+
+public class MainActivity extends Activity {
+
+	private ParseUser user = null;
+	private final String DebugLoginTag = "LOGIN";
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		DatabaseHelper.initializeParse(MainActivity.this);
 	}
 
 	@Override
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		ServiceImpl x = new ServiceImpl();
-		x.Connect("Seb", "lol", this);
-		
 	}
 	
 	@Override
@@ -31,16 +50,38 @@ public class MainActivity extends Activity {
 		
 		return true;
 	}
-
-	public void ok() {
-		//Log.d("SI", "ca marche");
-		// TODO Auto-generated method stub
-		TextView t = (TextView) findViewById(R.id.tvRes);
-		t.setText("ieeeeeei");
+	
+	public void loginSuccessfull(ParseUser user)
+	{
+		this.user = user;
+		Log.d(DebugLoginTag, "Login successfull");
+		//do other UI stuff;
 	}
 	
+	public void loginFailedBadPassword()
+	{		
+		Log.d(DebugLoginTag, "Login failed bad password");
+		//do other UI stuff;
+	}
 	
+	public void loginError()
+	{
+		Log.d(DebugLoginTag, "Login error");
+		//do other UI stuff;
+	}
 	
+	public void signUpSuccessfull(ParseUser user)
+	{
+		Log.d(DebugLoginTag, "Sign up successfull");
+		this.user = user;
+		//do other UI stuff;
+	}
+	
+	public void signUpFailed()
+	{
+		Log.d(DebugLoginTag, "Sign up failed");
+		//do other UI stuff;
+	}
 
 }
 
