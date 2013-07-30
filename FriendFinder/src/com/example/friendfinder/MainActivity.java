@@ -1,16 +1,14 @@
 package com.example.friendfinder;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.Menu;
-import android.widget.TextView;
+import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 public class MainActivity extends Activity {
@@ -30,6 +28,7 @@ public class MainActivity extends Activity {
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
+		Business.Connect("Seb", "lol", this);
 	}
 	
 	@Override
@@ -43,6 +42,7 @@ public class MainActivity extends Activity {
 	public void loginSuccessfull(ParseUser user)
 	{
 		this.user = user;
+		Business.FindAFriend("Danny", this);
 		Log.d(DebugLoginTag, "Login successfull");
 		//do other UI stuff;
 	}
@@ -70,6 +70,31 @@ public class MainActivity extends Activity {
 	{
 		Log.d(DebugLoginTag, "Sign up failed");
 		//do other UI stuff;
+	}
+	
+	public void processFriendCircles(List<ParseObject> objects)
+	{
+		StringBuilder sb = new StringBuilder();
+    	for (int i=0; i<objects.size(); i++) {
+    		sb.append(objects.get(i).get("tamere"));
+    		sb.append("---");
+    		//sb.append(objects.size());
+    		sb.append("\n");
+    	}
+    	sb.append(objects.size());
+    	
+    	Toast.makeText(MainActivity.this,
+        		sb.toString(), Toast.LENGTH_LONG).show();
+	}
+	
+	public void processFoundFriend(ParseUser usr)
+	{
+		Log.d(DebugLoginTag, usr.get("username").toString());
+	}
+	
+	public void errorFriendCircles(String errorMessage)
+	{
+		Log.d(DebugLoginTag, errorMessage);
 	}
 
 }
