@@ -33,7 +33,8 @@ public class DatabaseHelper {
 			 
 			 @Override
 			 public void done(ParseUser user, ParseException e) {
-				 if (e == null && user != null) {			    	 
+				 if (e == null && user != null) {	
+					 Log.d("signIn","ok");
 					 ((MainActivity) context).loginSuccessfull(user);
 			     } else if (user == null) {
 			    	 ((MainActivity) context).loginFailedBadPassword();
@@ -52,6 +53,7 @@ public class DatabaseHelper {
 			public void done(ParseException e) {
 				if(e == null)
 				{
+					Log.d("signUp","ok");
 					((MainActivity) context).signUpSuccessfull(user);
 				}
 				else
@@ -62,31 +64,48 @@ public class DatabaseHelper {
 		});
 	}
 	
-	public static void CheckOutAFriend(String username, int id, final Context context)
+	public static void CheckOutAFriend(String username, String id, final Context context)
 	{
 		 ParseUser current_user = ParseUser.getCurrentUser();
 		 
-		 ParseQuery<ParseObject> query = ParseQuery.getQuery("UserCircle");
-		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+		 if (current_user==null)
+		 {
+			 Log.d("TestCurrentUsert","null");
+		 }
+		 else
+		 {
+			 Log.d("TestCurrentUsert","ok");
+			 ParseQuery<ParseObject> query = ParseQuery.getQuery("UserCircle");
+			 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+			 Log.d("lol",current_user.getObjectId());
+			 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+			 query1.whereEqualTo("UserFriendId", current_user.getObjectId());
+			 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+			 query2.whereEqualTo("UserId", current_user.getObjectId());
+			 
+			 
+			 
+			 listQ.add(query1);
+			 listQ.add(query2);
+			 
+			query.or(listQ);
+			 
+			 query.findInBackground(new FindCallback<ParseObject>() {
+				 @Override
+				public void done(List<ParseObject> object, ParseException e) {
+					 if (e == null) {
+						 Log.d("ListFriend","good");
+						 
+						 
+						 
+						 
+					    } else {
+					   	 Log.d("ListFriend","bad");
+					    }
+					
+				}
+			});
+		 }
 		 
-		 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
-		 query1.whereEqualTo("UserFriendId", current_user.getObjectId());
-		 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
-		 query2.whereEqualTo("UserId", current_user.getObjectId());
-		 
-		 Log.d("lol",current_user.getObjectId());
-		 
-		 listQ.add(query1);
-		 listQ.add(query2);
-		 
-		 query.or(listQ);
-		 
-		 query.findInBackground(new FindCallback<ParseObject>() {
-			 @Override
-			public void done(List<ParseObject> object, ParseException e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
 	}
 }
