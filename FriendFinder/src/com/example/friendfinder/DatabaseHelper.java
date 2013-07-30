@@ -7,6 +7,7 @@ import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 public class DatabaseHelper {
 
@@ -21,18 +22,36 @@ public class DatabaseHelper {
 	
 	public static void SignInUser(String username, String password, final Context context)
 	{
-		//InputStream res = null;
-		//HttpClient client =  new DefaultHttpClient();
 		 ParseUser.logInInBackground(username, password, new LogInCallback() {
-			   public void done(ParseUser user, ParseException e) {
-			     if (e == null && user != null) {			    	 
-			    	 ((MainActivity) context).ok();
+			 
+			 @Override
+			 public void done(ParseUser user, ParseException e) {
+				 if (e == null && user != null) {			    	 
+					 ((MainActivity) context).loginSuccessfull(user);
 			     } else if (user == null) {
-			    	 Log.d("SI", "nok");
+			    	 ((MainActivity) context).loginFailedBadPassword();
 			     } else {
-			    	 Log.d("SI", "ko");
+			    	 ((MainActivity) context).loginError();
 			     }
-			   }
-			 });
+			 }
+		 });
+	}
+	
+	public static void SignUpUser(final ParseUser user, final Context context)
+	{
+		user.signUpInBackground(new SignUpCallback() {
+			
+			@Override
+			public void done(ParseException e) {
+				if(e == null)
+				{
+					((MainActivity) context).signUpSuccessfull(user);
+				}
+				else
+				{
+					((MainActivity) context).signUpFailed();
+				}
+			}
+		});
 	}
 }
