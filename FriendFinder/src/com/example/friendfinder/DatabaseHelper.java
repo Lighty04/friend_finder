@@ -19,14 +19,14 @@ public class DatabaseHelper {
 		Parse.initialize(context, AppId, ClientKey);
 	}
 	
-	public static void SignInUser(String username, String password, final MainActivity mainActivity)
+	public static void SignInUser(String username, String password, final Context context/*final MainActivity mainActivity*/)
 	{
 		//InputStream res = null;
 		//HttpClient client =  new DefaultHttpClient();
 		 ParseUser.logInInBackground(username, password, new LogInCallback() {
 			   public void done(ParseUser user, ParseException e) {
 			     if (e == null && user != null) {			    	 
-			    	 //mainActivity.ok();
+			    	 ((MainActivity) context).ok();
 			     } else if (user == null) {
 			    	 Log.d("SI", "nok");
 			     } else {

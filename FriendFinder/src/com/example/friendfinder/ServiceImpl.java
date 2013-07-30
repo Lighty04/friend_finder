@@ -2,6 +2,9 @@ package com.example.friendfinder;
 
 import java.util.List;
 
+import android.content.Context;
+import android.util.Log;
+
 public class ServiceImpl implements ServiceInterface {
 
 	@Override
@@ -11,8 +14,9 @@ public class ServiceImpl implements ServiceInterface {
 	}
 
 	@Override
-	public boolean Connect(User user, String password) {
+	public boolean Connect(String user, String password, Context context) {
 		// TODO Auto-generated method stub
+		DatabaseHelper.SignInUser(user, password, context);
 		return false;
 	}
 
