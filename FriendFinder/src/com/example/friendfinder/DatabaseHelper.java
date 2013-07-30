@@ -1,11 +1,18 @@
 package com.example.friendfinder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.util.Log;
 
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 public class DatabaseHelper {
@@ -21,8 +28,7 @@ public class DatabaseHelper {
 	
 	public static void SignInUser(String username, String password, final Context context)
 	{
-		//InputStream res = null;
-		//HttpClient client =  new DefaultHttpClient();
+		
 		 ParseUser.logInInBackground(username, password, new LogInCallback() {
 			   public void done(ParseUser user, ParseException e) {
 			     if (e == null && user != null) {			    	 
@@ -34,5 +40,33 @@ public class DatabaseHelper {
 			     }
 			   }
 			 });
+	}
+	
+	public static void CheckOutAFriend(String username, int id, final Context context)
+	{
+		 ParseUser current_user = ParseUser.getCurrentUser();
+		 
+		 ParseQuery<ParseObject> query = ParseQuery.getQuery("UserCircle");
+		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+		 
+		 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+		 query1.whereEqualTo("UserFriendId", current_user.getObjectId());
+		 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+		 query2.whereEqualTo("UserId", current_user.getObjectId());
+		 
+		 Log.d("lol",current_user.getObjectId());
+		 
+		 listQ.add(query1);
+		 listQ.add(query2);
+		 
+		 query.or(listQ);
+		 
+		 query.findInBackground(new FindCallback<ParseObject>() {
+			 @Override
+			public void done(List<ParseObject> object, ParseException e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 }

@@ -21,7 +21,7 @@ public class Business  {
 	}
 
 	
-	public boolean AddFriend(User user) {
+	public boolean AddFriend(String userName, int id) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -32,13 +32,13 @@ public class Business  {
 		return false;
 	}
 
-	@Override
+	
 	public User FindAFriend(User user) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+	
 	public List<User> FindAllFriend() {
 		// TODO Auto-generated method stub
 		return null;
