@@ -19,7 +19,7 @@ public class DatabaseHelper {
 		Parse.initialize(context, AppId, ClientKey);
 	}
 	
-	public static void SignInUser(String username, String password, final Context context/*final MainActivity mainActivity*/)
+	public static void SignInUser(String username, String password, final Context context)
 	{
 		//InputStream res = null;
 		//HttpClient client =  new DefaultHttpClient();
