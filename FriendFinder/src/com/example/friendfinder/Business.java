@@ -1,14 +1,15 @@
 package com.example.friendfinder;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
 
+import com.parse.ParseUser;
+
 public class Business  {
 
-	public static boolean NewUser(User user, String password) {
+	public static boolean NewUser(ParseUser user, String password) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -23,20 +24,20 @@ public class Business  {
 		return false;
 	}
 
-	public static boolean DeleteFriend(User user) {
+	public static boolean DeleteFriend(ParseUser user) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 //
 
-	public static User FindAFriend(HashMap<String, String> dictionary, Context context) {
+	public static ParseUser FindAFriend(HashMap<String, String> dictionary, Context context) {
 		// TODO Auto-generated method stub
 		DatabaseHelper.CheckOutAFriend(dictionary, context);
 
 		return null;
 	}
 
-	public static List<User> FindAllFriend(Context context) {
+	public static List<ParseUser> FindAllFriend(Context context) {
 		
 		DatabaseHelper.CheckOutAllFriend(context);
 		
