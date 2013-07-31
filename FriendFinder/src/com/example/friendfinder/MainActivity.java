@@ -1,5 +1,6 @@
 package com.example.friendfinder;
 
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
@@ -23,10 +24,6 @@ public class MainActivity extends Activity {
 		
 		DatabaseHelper.initializeParse(MainActivity.this);
 		
-		
-		Business.Connect("Remi", "remi", this);
-		
-		
 	}
 
 	@Override
@@ -47,10 +44,12 @@ public class MainActivity extends Activity {
 	public void loginSuccessfull(ParseUser user)
 	{
 		this.user = user;
-		Business.FindAFriend("Danny", this);
 		Log.d(DebugLoginTag, "Login successfull");
 		//do other UI stuff;
-		Business.FindAFriend("Seb", this);
+		HashMap<String, String> dictionary = new HashMap<String, String>();
+		dictionary.put("FirstName", "Remi");
+		dictionary.put("LastName", "Audrain");
+		Business.FindAFriend(dictionary, this);
 		
 	}
 	
@@ -83,7 +82,7 @@ public class MainActivity extends Activity {
 	{
 		StringBuilder sb = new StringBuilder();
     	for (int i=0; i<objects.size(); i++) {
-    		sb.append(objects.get(i).get("tamere"));
+    		//sb.append(objects.get(i).get("tamere"));
     		sb.append("---");
     		//sb.append(objects.size());
     		sb.append("\n");
@@ -96,7 +95,8 @@ public class MainActivity extends Activity {
 	
 	public void processFoundFriend(ParseUser usr)
 	{
-		Log.d(DebugLoginTag, usr.get("username").toString());
+		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("FirstName").toString());
+		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
 	}
 	
 	public void processFoundAllFriend(List<ParseUser> usrList)
