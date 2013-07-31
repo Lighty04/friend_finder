@@ -28,13 +28,14 @@ public class Business  {
 	}
 
 	public static User FindAFriend(String username, Context context) {
-		// TODO Auto-generated method stub
+		
 		DatabaseHelper.CheckOutAFriend(username, context);
 		return null;
 	}
 
 	public static List<User> FindAllFriend(Context context) {
-		// TODO Auto-generated method stub
+		
+		DatabaseHelper.CheckOutAllFriend(context);
 		
 		return null;
 	}

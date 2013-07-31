@@ -99,6 +99,12 @@ public class MainActivity extends Activity {
 		Log.d(DebugLoginTag, usr.get("username").toString());
 	}
 	
+	public void processFoundAllFriend(List<ParseUser> usrList)
+	{
+		Log.d(DebugLoginTag, "ListFriend");
+	}
+	
+	
 	public void errorFriendCircles(String errorMessage)
 	{
 		Log.d(DebugLoginTag, errorMessage);

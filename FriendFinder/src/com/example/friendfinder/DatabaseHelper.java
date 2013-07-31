@@ -6,6 +6,7 @@ import java.util.List;
 import android.content.Context;
 import android.util.Log;
 
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
@@ -108,4 +109,70 @@ public class DatabaseHelper {
 		});
 
 	}
+	
+	public static void CheckOutAllFriend( final Context context)
+	{
+		  final ParseUser current_user = ParseUser.getCurrentUser();
+		 
+		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+
+		 
+		 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+		 query1.whereEqualTo("UserFriendId", current_user);
+		 
+		 
+		 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+		 query2.whereEqualTo("UserId", current_user);
+		 
+		 
+		 listQ.add(query1);
+		 listQ.add(query2);
+		 
+		 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
+		 query.include("UserId");
+		 query.include("UserFriendId");
+		 
+		 
+		 
+		 query.findInBackground(new FindCallback<ParseObject>() {
+			 
+			public void done(List<ParseObject> list, ParseException e) {
+				// TODO Auto-generated method stub
+				 if(e == null && list != null)
+				 {
+					 ArrayList<ParseUser> listUser = new ArrayList<ParseUser>();
+					 
+					 for (ParseObject parseObject : list) {
+						
+						 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
+						 ParseUser usr2 = parseObject.getParseUser("UserId");
+						 
+						 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+						 {
+							 listUser.add(usr2);
+						 }
+						 else
+						 {
+							 listUser.add(usr1);
+						 }	 
+					}
+					 
+					 ((MainActivity) context).processFoundAllFriend(listUser);
+					
+				 }
+				 else
+				 {
+					 ((MainActivity) context).errorFriendCircles(e.getMessage());
+				 }
+			}
+		});
+
+	}
+	
+	
+	
+	
+	
+	
+	
 }
