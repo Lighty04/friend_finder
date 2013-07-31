@@ -119,6 +119,21 @@ public class DatabaseHelper {
 
 	}
 	
+	
+	public static boolean SaveFriend( ParseUser user, final Context context)
+	{
+		try
+		{
+		user.saveInBackground();
+		
+		return true;
+		}catch( Exception e)
+		{
+			return false;
+		}
+		
+	}
+	
 	public static void CheckOutAllFriend( final Context context)
 	{
 		  final ParseUser current_user = ParseUser.getCurrentUser();

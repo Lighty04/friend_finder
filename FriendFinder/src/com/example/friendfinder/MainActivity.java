@@ -24,6 +24,8 @@ public class MainActivity extends Activity {
 		
 		DatabaseHelper.initializeParse(MainActivity.this);
 		
+		Business.FindAllFriend(this);
+		
 	}
 
 	@Override
@@ -102,6 +104,10 @@ public class MainActivity extends Activity {
 	public void processFoundAllFriend(List<ParseUser> usrList)
 	{
 		Log.d(DebugLoginTag, "ListFriend");
+		for (ParseUser parseUser : usrList) 
+		{
+			Log.d("Friends", parseUser.getClassName());
+		}
 	}
 	
 	
