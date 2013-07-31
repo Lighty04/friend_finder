@@ -1,9 +1,10 @@
 package com.example.friendfinder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
-import android.util.Log;
 
 public class Business  {
 
@@ -27,9 +28,9 @@ public class Business  {
 		return false;
 	}
 
-	public static User FindAFriend(String username, Context context) {
+	public static User FindAFriend(HashMap<String, String> dictionary, Context context) {
 		// TODO Auto-generated method stub
-		DatabaseHelper.CheckOutAFriend(username, context);
+		DatabaseHelper.CheckOutAFriend(dictionary, context);
 		return null;
 	}
 

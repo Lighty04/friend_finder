@@ -1,7 +1,9 @@
 package com.example.friendfinder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import android.content.Context;
 import android.util.Log;
@@ -63,14 +65,21 @@ public class DatabaseHelper {
 		});
 	}
 	
-	public static void CheckOutAFriend(String username, final Context context)
+	public static void CheckOutAFriend(HashMap<String, String> dictionary, final Context context)
 	{
 		 ParseUser current_user = ParseUser.getCurrentUser();
 		 
 		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
-
+		 
+		 ParseQuery<ParseObject> queryMetadata = ParseQuery.getQuery("Metadata");
+		 
+		 for(Entry<String, String> entry : dictionary.entrySet())
+		 {
+			 queryMetadata.whereStartsWith((String) entry.getKey(), (String) entry.getValue());
+		 }
+		 
 		 ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
-		 queryUser.whereEqualTo("firstName", username);
+		 queryUser.whereMatchesQuery("Metadata", queryMetadata);
 		 
 		 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
 		 query1.whereEqualTo("UserFriendId", current_user);
@@ -84,8 +93,8 @@ public class DatabaseHelper {
 		 listQ.add(query2);
 		 
 		 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
-		 query.include("UserId");
-		 query.include("UserFriendId");
+		 query.include("UserId.Metadata");
+		 query.include("UserFriendId.Metadata");
 		 
 		 query.getFirstInBackground(new GetCallback<ParseObject>() {			 
 			@Override
