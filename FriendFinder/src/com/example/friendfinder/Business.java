@@ -27,7 +27,7 @@ public class Business  {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+//
 
 	public static User FindAFriend(HashMap<String, String> dictionary, Context context) {
 		// TODO Auto-generated method stub
