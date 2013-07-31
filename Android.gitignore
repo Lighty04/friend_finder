@@ -9,8 +9,8 @@
 *.class
 
 # generated files
-bin/
-gen/
+FriendFinder/bin/
+FriendFinder/gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
