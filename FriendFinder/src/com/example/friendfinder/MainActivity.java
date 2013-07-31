@@ -22,7 +22,7 @@ public class MainActivity extends FragmentActivity {
 		
 		LatLng SYDNEY = new LatLng(-33.88,151.21);
 		LatLng MOUNTAIN_VIEW = new LatLng(37.4, -122.1);
-		//workssdafdasfda
+		//workssdafdasfdafdas
 		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SYDNEY, 15));
 		mMap.animateCamera(CameraUpdateFactory.zoomIn());
 		mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 20000, null);
