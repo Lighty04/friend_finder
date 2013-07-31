@@ -32,7 +32,8 @@ public class DatabaseHelper {
 			 
 			 @Override
 			 public void done(ParseUser user, ParseException e) {
-				 if (e == null && user != null) {			    	 
+				 if (e == null && user != null) {	
+					 Log.d("signIn","ok");
 					 ((MainActivity) context).loginSuccessfull(user);
 			     } else if (user == null) {
 			    	 ((MainActivity) context).loginFailedBadPassword();
@@ -51,6 +52,7 @@ public class DatabaseHelper {
 			public void done(ParseException e) {
 				if(e == null)
 				{
+					Log.d("signUp","ok");
 					((MainActivity) context).signUpSuccessfull(user);
 				}
 				else
@@ -66,7 +68,7 @@ public class DatabaseHelper {
 		 ParseUser current_user = ParseUser.getCurrentUser();
 		 
 		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
-		 
+
 		 ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
 		 queryUser.whereEqualTo("firstName", username);
 		 
@@ -104,5 +106,6 @@ public class DatabaseHelper {
 				 }
 			}
 		});
+
 	}
 }

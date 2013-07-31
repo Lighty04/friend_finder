@@ -22,6 +22,11 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		DatabaseHelper.initializeParse(MainActivity.this);
+		
+		
+		Business.Connect("Remi", "remi", this);
+		
+		
 	}
 
 	@Override
@@ -45,6 +50,8 @@ public class MainActivity extends Activity {
 		Business.FindAFriend("Danny", this);
 		Log.d(DebugLoginTag, "Login successfull");
 		//do other UI stuff;
+		Business.FindAFriend("Seb", this);
+		
 	}
 	
 	public void loginFailedBadPassword()
