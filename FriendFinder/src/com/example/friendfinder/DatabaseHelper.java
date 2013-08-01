@@ -16,6 +16,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 public class DatabaseHelper {
@@ -37,33 +38,47 @@ public class DatabaseHelper {
 			 public void done(ParseUser user, ParseException e) {
 				 if (e == null && user != null) {	
 					 Log.d("signIn","ok");
-					 ((MainActivity) context).loginSuccessfull(user);
+					 ((LoginActivity) context).loginSuccessfull(user);
 			     } else if (user == null) {
-			    	 ((MainActivity) context).loginFailedBadPassword();
+			    	 ((LoginActivity) context).loginFailedBadPassword();
 			     } else {
-			    	 ((MainActivity) context).loginError();
+			    	 ((LoginActivity) context).loginError();
 			     }
 			 }
 		 });
 	}
 	
-	public static void SignUpUser(final ParseUser user, final Context context)
+	public static void SignUpUser(final ParseUser user, final ParseObject metaData, final Context context)
 	{
-		user.signUpInBackground(new SignUpCallback() {
+		metaData.saveInBackground(new SaveCallback() {
 			
 			@Override
 			public void done(ParseException e) {
 				if(e == null)
 				{
-					Log.d("signUp","ok");
-					((MainActivity) context).signUpSuccessfull(user);
-				}
-				else
-				{
-					((MainActivity) context).signUpFailed();
+					user.put("Metadata", metaData);
+					user.signUpInBackground(new SignUpCallback() {
+						
+						@Override
+						public void done(ParseException e) {							
+							if(e == null)
+							{
+								Log.d("signUp","ok");
+								((SignUpActivity) context).signUpSuccessfull();
+							}
+							else
+							{
+								((SignUpActivity) context).signUpFailed(e.getMessage());
+							}
+						}
+					});
+					
 				}
 			}
 		});
+		
+		
+		
 	}
 	
 	public static void CheckOutAFriend(HashMap<String, String> dictionary, final Context context)

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="prompt_password_repeat">Repeat Password</string>
+    <string name="prompt_first_name">First Name</string>
+    <string name="prompt_last_name">Last Name</string>
+    <string name="prompt_phone">Phone format: + 8 to 20 digits</string>
+    <string name="action_sign_up">Sign up</string>
+	<string name="error_incorrect_password_repeat">The passwords are not the same</string>
+	<string name="error_username_already_taken">Email already exists</string>
+	<string name="error_phone_format">Phone number is "+" followed by 8 to 20 digits</string>
+	<string name="signup_progress_signing_up">Signing up</string>
+</resources>

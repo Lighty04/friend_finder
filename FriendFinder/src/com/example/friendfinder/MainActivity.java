@@ -21,16 +21,12 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		DatabaseHelper.initializeParse(MainActivity.this);
-		
 	}
 
 	@Override
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		Business.Connect("Seb", "lol", this);
 	}
 	
 	@Override
@@ -62,19 +58,6 @@ public class MainActivity extends Activity {
 	public void loginError()
 	{
 		Log.d(DebugLoginTag, "Login error");
-		//do other UI stuff;
-	}
-	
-	public void signUpSuccessfull(ParseUser user)
-	{
-		Log.d(DebugLoginTag, "Sign up successfull");
-		this.user = user;
-		//do other UI stuff;
-	}
-	
-	public void signUpFailed()
-	{
-		Log.d(DebugLoginTag, "Sign up failed");
 		//do other UI stuff;
 	}
 	

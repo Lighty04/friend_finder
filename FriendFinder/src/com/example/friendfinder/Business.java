@@ -4,13 +4,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 public class Business  {
 
-	public static boolean NewUser(ParseUser user, String password) {
-		// TODO Auto-generated method stub
+	public static boolean NewUser(final ParseUser user, final ParseObject metaData, Context context) {
+		// TODO Auto-generated method stub		
+		DatabaseHelper.SignUpUser(user, metaData, context);
 		return false;
 	}
 
