@@ -37,11 +37,6 @@
          <activity
             android:name="com.example.friendfinder.MainActivity"
             android:label="@string/app_name" >
-             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.example.friendfinder.SignUpActivity"
@@ -51,6 +46,11 @@
             android:name="com.example.friendfinder.LoginActivity"
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
            
         </activity>
     </application>
