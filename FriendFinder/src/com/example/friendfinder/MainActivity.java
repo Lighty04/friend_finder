@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -308,6 +309,10 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		}
 	}
 	
+	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
+	{
+		Log.d(DebugLoginTag, "ListPosition");
+	}
 	
 	public void errorFriendCircles(String errorMessage)
 	{
