@@ -33,7 +33,7 @@
             android:value="AIzaSyC-gKTAKoe3lt4qKb6IZM37pWd1hREXzv0" />
 
         <activity
-            android:name="hu.bme.aut.amorg.examples.mapmarkersdemo.MainActivity"
+            android:name="com.example.friendfinder.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
