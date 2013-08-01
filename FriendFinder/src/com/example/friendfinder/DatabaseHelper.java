@@ -13,6 +13,7 @@ import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -28,6 +29,70 @@ public class DatabaseHelper {
 	{
 		//TO DO check return value
 		Parse.initialize(context, AppId, ClientKey);
+	}
+	
+	
+	public static void GetPositions( final Context context)
+	{
+		  final ParseUser current_user = ParseUser.getCurrentUser();
+		 
+		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+
+		 
+		 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+		 query1.whereEqualTo("UserFriendId", current_user);
+		 
+		 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+		 query2.whereEqualTo("UserId", current_user);
+		 
+		 listQ.add(query1);
+		 listQ.add(query2);
+		 
+		 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
+		 query.include("UserId");
+		 query.include("UserFriendId");
+		 
+		 query.findInBackground(new FindCallback<ParseObject>() {
+			 
+			public void done(List<ParseObject> list, ParseException e) {
+				// TODO Auto-generated method stub
+				 if(e == null && list != null)
+				 {
+					 ArrayList<ParseUser> listUser = new ArrayList<ParseUser>();
+					 
+					 for (ParseObject parseObject : list) {
+						
+						 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
+						 ParseUser usr2 = parseObject.getParseUser("UserId");
+						 
+						 Log.d("usr1", usr1.getUsername());
+						 Log.d("usr2", usr2.getUsername());
+						 
+						 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+						 {
+							 listUser.add(usr2);
+						 }
+						 else
+						 {
+							 listUser.add(usr1);
+						 }	 
+					}
+					 ArrayList<ParseGeoPoint> listPosition = new ArrayList<ParseGeoPoint>();
+					 for (ParseObject parseObject : listUser) {
+						
+						 listPosition.add(parseObject.getParseGeoPoint(""));
+					}
+					 
+					 
+					 ((MainActivity) context).processGetdAllPositions(listPosition);
+				 }
+				 else
+				 {
+					 ((MainActivity) context).errorFriendCircles(e.getMessage());
+				 }
+			}
+		});
+
 	}
 	
 	public static void SignInUser(String username, String password, final Context context)
