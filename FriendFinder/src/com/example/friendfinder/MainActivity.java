@@ -38,14 +38,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        DatabaseHelper.initializeParse(MainActivity.this);
-        try {
-			ParseUser.logIn("Seb@seb.com", "lol");
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
         Mmap = ((SupportMapFragment) getSupportFragmentManager()
@@ -311,7 +303,8 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
 	}
 	
-	public void processFoundAllFriend(List<ParseUser> usrList)
+	//TO DELETE
+	/*public void processFoundAllFriend(List<ParseUser> usrList)
 	{
 		//PlaceAllFriend(usrList);
 		Log.d(DebugLoginTag, "ListFriend");
@@ -319,7 +312,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		{
 			Log.d("Friends", parseUser.getUsername());
 		}
-	}
+	}*/
 	
 	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
 	{
