@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -32,7 +33,6 @@ public class SignUpActivity extends Activity {
 	private EditText etFirstName;
 	private EditText etLastName;
 	private EditText etPhone;
-	private TextView tvSignUpStatusMessage;
 	private View vSignupStatus;
 	private View vSignupForm;
 	private Button btnSignUp;
@@ -48,15 +48,12 @@ public class SignUpActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sign_up);
-		DatabaseHelper.initializeParse(SignUpActivity.this);
-		
 		etEmail = (EditText) findViewById(R.id.email);
 		etPassword = (EditText) findViewById(R.id.password);
 		etPasswordRepeat = (EditText) findViewById(R.id.passwordRepeat);
 		etFirstName = (EditText) findViewById(R.id.firstName);
 		etLastName = (EditText) findViewById(R.id.lastName);
 		etPhone = (EditText) findViewById(R.id.phone);
-		tvSignUpStatusMessage = (TextView) findViewById(R.id.signup_status_message);
 		vSignupStatus = (View) findViewById(R.id.signup_status);
 		vSignupForm = (View) findViewById(R.id.signup_form);
 		btnSignUp = (Button) findViewById(R.id.sign_up_button);
@@ -179,8 +176,8 @@ public class SignUpActivity extends Activity {
 	public void signUpSuccessfull()
 	{
 		Log.d(DebugLoginTag, "Sign up successfull");
-		Log.d(DebugLoginTag, user.getUsername().toString());
-		finish();
+		showProgress(false);
+		finish();//go back to first activity
 		//do other UI stuff;
 	}
 	
@@ -188,6 +185,7 @@ public class SignUpActivity extends Activity {
 	{
 		Log.d(DebugLoginTag, "Sign up failed");
 		Log.d(DebugLoginTag, msg);
+		user = null;
 		showProgress(false);
 		etEmail.setError(getString(R.string.error_username_already_taken));
 		etEmail.requestFocus();
