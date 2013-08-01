@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -36,12 +37,22 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        DatabaseHelper.initializeParse(MainActivity.this);
+        try {
+			ParseUser.logIn("Seb@seb.com", "lol");
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
         Mmap = ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        Business.FindAllFriend(this);
         Mmap.addMarker(new MarkerOptions()
                 .position(new LatLng(0, 0))
                 .title("Marker")
@@ -302,6 +313,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	
 	public void processFoundAllFriend(List<ParseUser> usrList)
 	{
+		//PlaceAllFriend(usrList);
 		Log.d(DebugLoginTag, "ListFriend");
 		for (ParseUser parseUser : usrList) 
 		{
@@ -312,6 +324,34 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
 	{
 		Log.d(DebugLoginTag, "ListPosition");
+		
+	}
+	
+	public boolean PlaceAllFriend(List<ParseUser> friendList)
+	{
+		
+		 for (ParseUser user : friendList) {
+			 
+		
+			//ParseUser user = friendList.get(1);
+			String name = ((ParseObject)user.get("Metadata")).get("FirstName").toString() + " " +
+							((ParseObject)user.get("Metadata")).get("LastName").toString();
+Log.d("test", name);
+             ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
+             
+             double longitude = geoPoint.getLongitude();
+             double latitude = geoPoint.getLatitude();
+             
+            
+            /*Location aLocation = new Location("first");
+            aLocation.setLatitude(latitude);
+            aLocation.setLongitude(geo2Dub);*/
+           
+            Mmap.addMarker(new MarkerOptions().position(new LatLng(longitude,latitude)).title((String) name)                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
+
+			
+		}
+		 return true;
 	}
 	
 	public void errorFriendCircles(String errorMessage)
