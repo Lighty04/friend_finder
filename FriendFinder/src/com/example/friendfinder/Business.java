@@ -11,40 +11,39 @@ import com.parse.ParseUser;
 
 public class Business  {
 
-	public static boolean NewUser(final ParseUser user, final ParseObject metaData, Context context) {
+	public static void NewUser(final ParseUser user, final ParseObject metaData, Context context) {
 		// TODO Auto-generated method stub		
 		DatabaseHelper.SignUpUser(user, metaData, context);
-		return false;
 	}
 
-	static public boolean Connect(String user, String password, Context context) {
+	static public void Connect(String user, String password, Context context) {
 		DatabaseHelper.SignInUser(user, password, context);
-		return false;
 	}
 
-	static public boolean AddFriend(String userName, int id) {
-		// TODO Auto-generated method stub
-		return false;
+	public static void SaveAFriend(ParseUser user , Context context)
+	{
+		DatabaseHelper.SaveFriend(user, context);
 	}
 
-	public static boolean DeleteFriend(ParseUser user) {
-		// TODO Auto-generated method stub
-		return false;
+	public static void DeleteFriend(ParseUser user, Context context) {
+		
+		DatabaseHelper.DeleteFriend(user, context);
+		
 	}
 //
 
-	public static ParseUser FindAFriend(HashMap<String, String> dictionary, Context context) {
+	public static void FindAFriend(HashMap<String, String> dictionary, Context context) {
 		// TODO Auto-generated method stub
 		DatabaseHelper.CheckOutAFriend(dictionary, context);
 
-		return null;
+		
 	}
 
-	public static List<ParseUser> FindAllFriend(Context context) {
+	public static void FindAllFriend(Context context) {
 		
 		DatabaseHelper.CheckOutAllFriend(context);
 		
-		return null;
+		
 	}
 
 }

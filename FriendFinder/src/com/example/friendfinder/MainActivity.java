@@ -37,30 +37,6 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	public void loginSuccessfull(ParseUser user)
-	{
-		this.user = user;
-		Log.d(DebugLoginTag, "Login successfull");
-		//do other UI stuff;
-		HashMap<String, String> dictionary = new HashMap<String, String>();
-		dictionary.put("FirstName", "Remi");
-		dictionary.put("LastName", "Audrain");
-		Business.FindAFriend(dictionary, this);
-		
-	}
-	
-	public void loginFailedBadPassword()
-	{		
-		Log.d(DebugLoginTag, "Login failed bad password");
-		//do other UI stuff;
-	}
-	
-	public void loginError()
-	{
-		Log.d(DebugLoginTag, "Login error");
-		//do other UI stuff;
-	}
-	
 	public void processFriendCircles(List<ParseObject> objects)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -85,6 +61,10 @@ public class MainActivity extends Activity {
 	public void processFoundAllFriend(List<ParseUser> usrList)
 	{
 		Log.d(DebugLoginTag, "ListFriend");
+		for (ParseUser parseUser : usrList) 
+		{
+			Log.d("Friends", parseUser.getUsername());
+		}
 	}
 	
 	
