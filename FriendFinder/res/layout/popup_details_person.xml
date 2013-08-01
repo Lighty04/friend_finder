@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PopupDetailsPerson -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" 
+    android:background="@android:color/background_dark">
+    
+      <LinearLayout
+	      android:orientation="horizontal"
+	      android:layout_width="match_parent"
+	      android:layout_height="wrap_content" >
+    
+       	      <ImageView
+       	          android:id="@+id/imgViewPerson"
+       	          android:contentDescription="Image Person"
+		          android:layout_width="wrap_content"
+		          android:layout_height="wrap_content"
+		          android:src="@drawable/ic_launcher" />
+	      
+		      <TextView
+		          android:id="@+id/textViewPerson"
+		          android:layout_width="wrap_content"
+		          android:layout_height="wrap_content"
+		          android:text="Name"
+   			      android:layout_marginLeft="20dp"
+   			      android:layout_marginRight="20dp" />   
+		      
+		      <ImageButton
+		          android:id="@+id/btnBack"
+		          android:contentDescription="back"
+				  android:layout_width="wrap_content"
+			      android:layout_height="wrap_content"
+			      android:src="@drawable/ic_launcher"
+			 />
+      </LinearLayout>
+      
+      <Button
+          android:id="@+id/btnPhone"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="Phone" />
+      <Button
+          android:id="@+id/btnEmail"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="Mail" />
+      <Button
+          android:id="@+id/btnFacebookChat"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="Facebook Chat" />
+</LinearLayout>

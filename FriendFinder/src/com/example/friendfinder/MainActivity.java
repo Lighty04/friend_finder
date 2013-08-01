@@ -1,40 +1,122 @@
 package com.example.friendfinder;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity {
-
+public class MainActivity extends FragmentActivity implements OnMarkerClickListener{
+	
+	private Marker myMarker;
+	private String name = "Juan";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		GoogleMap mMap;
-		mMap = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-		mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-		mMap.setTrafficEnabled(true);
 		
-		LatLng SYDNEY = new LatLng(-33.88,151.21);
-		LatLng MOUNTAIN_VIEW = new LatLng(37.4, -122.1);
-		//workssdafdasfda
-		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SYDNEY, 15));
-		mMap.animateCamera(CameraUpdateFactory.zoomIn());
-		mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 20000, null);
-		CameraPosition cameraPosition = new CameraPosition.Builder()
-		    .target(MOUNTAIN_VIEW)      // Sets the center of the map to Mountain View
-		    .zoom(17)                   // Sets the zoom
-		    .bearing(90)                // Sets the orientation of the camera to east
-		    .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-		    .build();                   // Creates a CameraPosition from the builder
-		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+		GoogleMap mMap;
+		mMap = ((SupportMapFragment)getSupportFragmentManager()
+				.findFragmentById(R.id.map)).getMap();
+		mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+		mMap.setTrafficEnabled(true);		
+		
+		mMap.setOnMarkerClickListener(this);
+
+        myMarker = mMap.addMarker(new MarkerOptions()
+			        .position(new LatLng(0, 0))
+			        .title("Marker")
+			        .draggable(false)
+			        .snippet(this.name)
+			        .icon(BitmapDescriptorFactory
+			        .defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+		
+			
 	}
 
+	@Override
+	public boolean onMarkerClick(Marker arg0) {
+		//if (v.getId() == R.id.btnShowPopup) {
+    		LayoutInflater layoutInflater = 
+    				(LayoutInflater) getBaseContext()
+    				.getSystemService(LAYOUT_INFLATER_SERVICE);   		
+    		
+    		View popupView = layoutInflater.inflate(
+    				R.layout.popup_details_person, null);
+    		final PopupWindow popupWindow = new PopupWindow(
+    				popupView,
+    				LayoutParams.WRAP_CONTENT,
+    				LayoutParams.WRAP_CONTENT);    		
+    		
+    		
+    		TextView textView = (TextView) popupView.findViewById(R.id.textViewPerson);
+    		textView.setText(this.name);
+    		
+    		
+    		//Back Button
+    		//Button btnBack = (Button) popupView.findViewById(R.id.btnBack);
+    		/*btnBack.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				popupWindow.dismiss();
+    			}
+    		});*/
+    		
+    		//Phone Button
+    		Button btnPhone = (Button) popupView.findViewById(R.id.btnPhone);
+    		btnPhone.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				//make phone call
+    				Uri uriCall = Uri.parse("tel:12345");
+    				Intent callIntent = new Intent(Intent.ACTION_DIAL, uriCall);
+    			    startActivity(callIntent);
+    				//popupWindow.dismiss();
+
+    			}
+    		});
+    		
+    		//Email Button
+    		Button btnEmail = (Button) popupView.findViewById(R.id.btnEmail);
+    		btnEmail.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				//send email   				 
+    				Uri uriEmail = Uri.parse("mailto:email@hotmail.com");
+    				Intent emailIntent = new Intent(Intent.ACTION_SENDTO, uriEmail);
+    				emailIntent.putExtra(Intent.EXTRA_TEXT, "The email body text");     
+    				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "The email subject text");   
+    				startActivity(emailIntent);
+    			}
+    		});    		
+    		
+
+    		//popupWindow.showAsDropDown(btnPop);
+    		popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+    		
+    	
+    	//}
+	
+    		return true;
+	}
+		
+		
 }
+
 
 
