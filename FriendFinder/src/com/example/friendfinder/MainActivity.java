@@ -1,6 +1,8 @@
 package com.example.friendfinder;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.location.Location;
 import android.location.LocationListener;
@@ -24,7 +26,7 @@ import com.parse.ParseUser;
 
 public class MainActivity extends FragmentActivity implements LocationListener {
 
-    GoogleMap map;
+    GoogleMap Mmap;
     private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
 	
@@ -35,11 +37,11 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         setContentView(R.layout.activity_main);
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
-        map = ((SupportMapFragment) getSupportFragmentManager()
+        Mmap = ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
-        map.setMyLocationEnabled(true);
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        map.addMarker(new MarkerOptions()
+        Mmap.setMyLocationEnabled(true);
+        Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        Mmap.addMarker(new MarkerOptions()
                 .position(new LatLng(0, 0))
                 .title("Marker")
                 .draggable(true)
@@ -47,37 +49,31 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                 .icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_RED)));
       
-      /*  public void ParseQueryMap() {
-            ParseQuery query = new ParseQuery("MyObject");
-            query.findInBackground(new FindCallback() {
-            public void done(List<ParseObject> myObject, ParseException e) {
-            if (e == null) {
+       
+      
 
-                      for ( int i = 0; i < myObject.size(); i++) {
+     
+ 
+
+            /*          for ( int i = 0; i < myObject.size(); i++) {
 
                             Object commGet = myObject.get(i).getString("Comment");
 
                             double geo1Dub = myObject.get(i).getParseGeoPoint("location").getLatitude();
-                            geo2Dub = myObject.get(i).getParseGeoPoint("location").getLongitude();
+                            double geo2Dub = myObject.get(i).getParseGeoPoint("location").getLongitude();
 
                            Location aLocation = new Location("first");
                            aLocation.setLatitude(geo1Dub);
                            aLocation.setLongitude(geo2Dub);
-                           Location bLocation = new Location("second");
-                           bLocation.setLatitude(location.getLatitude());
-                           bLocation.setLongitude(location.getLongitude());
-                           int distance = (int)aLocation.distanceTo(bLocation);
-                                if (distance<rad) {  // where "rad" radius display points
+                          ;
+                         
                                     map.addMarker(new MarkerOptions().position(new LatLng(geo1Dub,geo2Dub)).title((String) commGet)                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
 
-                                 } else {
-                                 }                                                               
+                                                                                           
 
                            }
 
-               } else {
-                      Toast.makeText(MainActivity.this, "Error!", Toast.LENGTH_SHORT).show();
-                }
+              
             }
         });      
         
@@ -109,7 +105,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         
         
         
-        	map.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
+        	Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
         		
         		@Override
         	    public void onInfoWindowClick(Marker marker) {
@@ -121,8 +117,8 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         	    	location1.setLatitude(position.latitude);
         	    	location1.setLongitude(position.longitude);
         	    	
-        	    	 double lat1 = map.getMyLocation().getLatitude();
-        	    	 double lon1 = map.getMyLocation().getLongitude();
+        	    	 double lat1 = Mmap.getMyLocation().getLatitude();
+        	    	 double lon1 = Mmap.getMyLocation().getLongitude();
         	    	 double lat2 = location1.getLatitude();
         	    	 double lon2 = location1.getLongitude();
         	    	 
@@ -160,7 +156,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         
         
         
-        map.setOnMarkerDragListener(new OnMarkerDragListener() {
+        Mmap.setOnMarkerDragListener(new OnMarkerDragListener() {
 
             @Override
             public void onMarkerDragStart(Marker marker) {
