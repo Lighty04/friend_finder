@@ -134,6 +134,19 @@ public class DatabaseHelper {
 		
 	}
 	
+	public static boolean DeleteFriend(ParseUser user, final Context context)
+	{
+		try
+		{
+		user.deleteInBackground();
+		
+		return true;
+		}catch( Exception e)
+		{
+			return false;
+		}
+	}
+	
 	public static void CheckOutAllFriend( final Context context)
 	{
 		  final ParseUser current_user = ParseUser.getCurrentUser();
@@ -170,6 +183,9 @@ public class DatabaseHelper {
 						
 						 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
 						 ParseUser usr2 = parseObject.getParseUser("UserId");
+						 
+						 Log.d("usr1", usr1.getUsername());
+						 Log.d("usr2", usr2.getUsername());
 						 
 						 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
 						 {

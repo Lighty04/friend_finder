@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
 		
 		DatabaseHelper.initializeParse(MainActivity.this);
 		
-		Business.FindAllFriend(this);
+		
 		
 	}
 
@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		Business.Connect("Seb", "lol", this);
+		
 	}
 	
 	@Override
@@ -43,42 +43,11 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	public void loginSuccessfull(ParseUser user)
-	{
-		this.user = user;
-		Log.d(DebugLoginTag, "Login successfull");
-		//do other UI stuff;
-		HashMap<String, String> dictionary = new HashMap<String, String>();
-		dictionary.put("FirstName", "Remi");
-		dictionary.put("LastName", "Audrain");
-		Business.FindAFriend(dictionary, this);
-		
-	}
+
 	
-	public void loginFailedBadPassword()
-	{		
-		Log.d(DebugLoginTag, "Login failed bad password");
-		//do other UI stuff;
-	}
 	
-	public void loginError()
-	{
-		Log.d(DebugLoginTag, "Login error");
-		//do other UI stuff;
-	}
 	
-	public void signUpSuccessfull(ParseUser user)
-	{
-		Log.d(DebugLoginTag, "Sign up successfull");
-		this.user = user;
-		//do other UI stuff;
-	}
 	
-	public void signUpFailed()
-	{
-		Log.d(DebugLoginTag, "Sign up failed");
-		//do other UI stuff;
-	}
 	
 	public void processFriendCircles(List<ParseObject> objects)
 	{
@@ -106,7 +75,7 @@ public class MainActivity extends Activity {
 		Log.d(DebugLoginTag, "ListFriend");
 		for (ParseUser parseUser : usrList) 
 		{
-			Log.d("Friends", parseUser.getClassName());
+			Log.d("Friends", parseUser.getUsername());
 		}
 	}
 	

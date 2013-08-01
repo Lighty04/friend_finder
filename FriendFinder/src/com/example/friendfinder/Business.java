@@ -24,13 +24,11 @@ public class Business  {
 		
 	}
 
-	static public void AddFriend(String userName, int id) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	public static void DeleteFriend(ParseUser user) {
-		// TODO Auto-generated method stub
+
+	public static void DeleteFriend(ParseUser user, Context context) {
+		
+		DatabaseHelper.DeleteFriend(user, context);
 		
 	}
 //
