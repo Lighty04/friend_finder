@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -45,6 +46,8 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 			        .snippet(this.name)
 			        .icon(BitmapDescriptorFactory
 			        .defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        
+        Toast.makeText(getApplicationContext(), "String", Toast.LENGTH_LONG).show();
 		
 			
 	}
