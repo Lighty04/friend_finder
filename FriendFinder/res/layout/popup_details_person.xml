@@ -28,13 +28,13 @@
 			      android:layout_width="match_parent"
 			      android:layout_height="80dp" >
 
-       	                  <!--<ImageButton       	                    
+       	                  <ImageButton       	                    
 					        android:id="@+id/btnBack"	
 					        android:contentDescription="@string/back"				        
 							android:layout_width="50dp"							   			        
 		   			        android:layout_marginLeft="180dp"			   			         			       
 		   			        android:layout_height="29dp"
-						    android:src="@drawable/sym_keyboard_feedback_return" />-->
+						    android:src="@drawable/sym_keyboard_feedback_return" />
 			      
 					      <TextView 
 					          android:id="@+id/tPersonFamilyname"

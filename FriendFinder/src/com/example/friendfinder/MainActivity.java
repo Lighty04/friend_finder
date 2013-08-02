@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -69,13 +68,13 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     		
     		
     		//Back Button
-    		//Button btnBack = (Button) popupView.findViewById(R.id.btnBack);
-    		/*btnBack.setOnClickListener(
+    		Button btnBack = (Button) popupView.findViewById(R.id.btnFacebookChat);
+    		btnBack.setOnClickListener(
     		new Button.OnClickListener() {
     			public void onClick(View v) {
     				popupWindow.dismiss();
     			}
-    		});*/
+    		});
     		
     		//Phone Button
     		Button btnPhone = (Button) popupView.findViewById(R.id.btnPhone);

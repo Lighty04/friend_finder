@@ -36,7 +36,7 @@
         
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyDu6j2HHys-yAdm0nyB8B2yA0qbNe32inY" />
+            android:value="AIzaSyAnRzhcUcCMLufXpz7KAOtWlmFX5v96Yc0" />
         
         <activity
             android:name="com.example.friendfinder.MainActivity"
