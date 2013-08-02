@@ -4,6 +4,8 @@
     <string name="app_name">PopupFriendFinder_v1</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    
+    <!-- PopUpDetailsPerson  -->
     <string name="phone">Phone</string>
     <string name="email">Email</string>
     <string name="facebook_chat">Facebook Chat</string>
@@ -11,6 +13,9 @@
     <string name="family_name">Mustermann</string>
     <string name="image_person">Image Person</string>
     <string name="back">back</string>
+    
+    <!-- Search -->
+    <string name="search_title">Search Title</string>
 
 </resources>
 
