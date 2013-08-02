@@ -106,7 +106,9 @@ public class LoginActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onResume();
 		if(ParseUser.getCurrentUser() != null)
-			startMainActivity();
+			ParseUser.logOut();
+		/*if(ParseUser.getCurrentUser() != null)
+			startMainActivity();*/
 	}
 
 	@Override
