@@ -179,6 +179,7 @@ public class LoginActivity extends Activity {
 	public void loginSuccessfull(ParseUser user)
 	{
 		Log.d(DebugLoginTag, "Login successfull");
+		showProgress(false);
 		startMainActivity();
 		//do other UI stuff;
 	}
