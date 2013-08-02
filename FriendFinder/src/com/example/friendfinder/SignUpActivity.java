@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,6 +14,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -36,6 +38,7 @@ public class SignUpActivity extends Activity {
 	private View vSignupStatus;
 	private View vSignupForm;
 	private Button btnSignUp;
+	private CheckBox signMeIn;
 	
 	private String email;
 	private String password;
@@ -57,6 +60,7 @@ public class SignUpActivity extends Activity {
 		vSignupStatus = (View) findViewById(R.id.signup_status);
 		vSignupForm = (View) findViewById(R.id.signup_form);
 		btnSignUp = (Button) findViewById(R.id.sign_up_button);
+		signMeIn = (CheckBox) findViewById(R.id.sign_me_in);
 		
 		btnSignUp.setOnClickListener(new OnClickListener() {
 			
@@ -147,6 +151,11 @@ public class SignUpActivity extends Activity {
 			// form field with an error.
 			focusView.requestFocus();
 		} else {
+			SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
+			SharedPreferences.Editor editor = pref.edit();			
+			editor.putBoolean("keepLogin", signMeIn.isChecked());
+			editor.commit();
+			
 			user = new ParseUser();
 			user.setEmail(email);
 			user.setUsername(email);
@@ -176,6 +185,13 @@ public class SignUpActivity extends Activity {
 	public void signUpSuccessfull()
 	{
 		Log.d(DebugLoginTag, "Sign up successfull");
+		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
+		boolean keep_login = pref.getBoolean("Settings", false);
+		if(!keep_login && ParseUser.getCurrentUser() != null)
+		{
+			ParseUser.logOut();
+		}
+		
 		showProgress(false);
 		finish();//go back to first activity
 		//do other UI stuff;

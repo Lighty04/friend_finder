@@ -1,8 +1,6 @@
 package com.example.friendfinder;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,6 +8,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -21,7 +22,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -31,6 +31,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     GoogleMap Mmap;
     private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
+	private Button bLogOut;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,20 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         Business.FindAllFriend(this);
+        bLogOut = (Button) findViewById(R.id.logOut);
+        
+        bLogOut.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(user != null)
+				{
+					ParseUser.logOut();
+					finish();
+				}
+			}
+		});
+        
         Mmap.addMarker(new MarkerOptions()
                 .position(new LatLng(0, 0))
                 .title("Marker")
@@ -353,4 +368,11 @@ Log.d("test", name);
 		Log.d(DebugLoginTag, errorMessage);
 	}
 
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		Business.CheckLogout(this);
+	}
+	
 }

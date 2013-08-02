@@ -1,10 +1,9 @@
 package com.example.friendfinder;
 
 import java.util.HashMap;
-import java.util.List;
 
 import android.content.Context;
-import android.util.Log;
+import android.content.SharedPreferences;
 
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -48,6 +47,14 @@ public class Business  {
 		DatabaseHelper.CheckOutAllFriend(context);
 		
 		
+	}
+	
+	public static void CheckLogout(Context context)
+	{
+		SharedPreferences pref = context.getSharedPreferences("Settings", 0); //0 is for mod private
+		boolean keep_login = pref.getBoolean("Settings", false);
+		if(!keep_login && ParseUser.getCurrentUser() != null)
+			ParseUser.logOut();
 	}
 
 }

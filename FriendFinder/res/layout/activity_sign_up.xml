@@ -96,6 +96,12 @@
 		       android:ems="10"
 		       android:hint="@string/prompt_phone"
 		       android:inputType="phone" />
+
+		<CheckBox
+		    android:id="@+id/sign_me_in"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/sign_me_in" />
 		   
 		   <Button
 		       android:id="@+id/sign_up_button"

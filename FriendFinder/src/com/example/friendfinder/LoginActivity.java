@@ -49,9 +49,17 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_login);
-		DatabaseHelper.initializeParse(LoginActivity.this);		
+		DatabaseHelper.initializeParse(LoginActivity.this);
+		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
+		boolean keep_login = pref.getBoolean("Settings", false);
 		if(ParseUser.getCurrentUser() != null)
-			startMainActivity();
+		{
+			if(!keep_login)
+				ParseUser.logOut();
+			else
+				startMainActivity();
+		}
+			
 		// Set up the login form.
 		mEmailView = (EditText) findViewById(R.id.email);
 
@@ -106,9 +114,9 @@ public class LoginActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onResume();
 		if(ParseUser.getCurrentUser() != null)
-			ParseUser.logOut();
-		/*if(ParseUser.getCurrentUser() != null)
-			startMainActivity();*/
+		{
+			startMainActivity();
+		}
 	}
 
 	@Override
@@ -205,6 +213,13 @@ public class LoginActivity extends Activity {
 		Log.d(DebugLoginTag, "Login error");
 		showProgress(false);
 		//do other UI stuff;
+	}
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		Business.CheckLogout(this);
 	}
 	
 	/**
