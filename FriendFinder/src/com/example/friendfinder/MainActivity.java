@@ -2,14 +2,11 @@ package com.example.friendfinder;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.widget.TextView;
-
-import android.app.Activity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.widget.TextView;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 import com.parse.ParseUser;
 
@@ -18,12 +15,25 @@ public class MainActivity extends Activity {
 	private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
 	
+	public Button queryButton;
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
 		DatabaseHelper.initializeParse(MainActivity.this);
+		
+		queryButton = (Button) findViewById(R.id.query);
+		queryButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 	@Override
