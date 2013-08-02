@@ -246,8 +246,8 @@ public class DatabaseHelper {
 		 listQ.add(query2);
 		 
 		 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
-		 query.include("UserId");
-		 query.include("UserFriendId");
+		 query.include("UserId.Metadata");
+		 query.include("UserFriendId.Metadata");
 		 
 		 
 		 
@@ -277,7 +277,7 @@ public class DatabaseHelper {
 						 }	 
 					}
 					 
-					 ((MainActivity) context).processFoundAllFriend(listUser);
+					 ((MainActivity) context).PlaceAllFriend(listUser);
 					
 				 }
 				 else
