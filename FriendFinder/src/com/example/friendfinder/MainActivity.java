@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.PopupWindow;
-import android.widget.TextView;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -24,6 +24,8 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 	
 	private Marker myMarker;
 	private String name = "Juan";
+	
+	private PopupWindow popupWindow;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +48,19 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 			        .icon(BitmapDescriptorFactory
 			        .defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 		
+        /*RelativeLayout r = (RelativeLayout) findViewById(R.id.titleScreenFrame);
+        r.setOnClickListener(
+		new RelativeLayout.OnClickListener() {
+			public void onClick(View v) {
+				if (v.getId() != R.id.popupDetailsPerson) {
+					popupWindow.dismiss();					
+				}
+			}
+		});*/
 			
 	}
+	
+	
 
 	@Override
 	public boolean onMarkerClick(Marker arg0) {
@@ -58,14 +71,18 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     		
     		View popupView = layoutInflater.inflate(
     				R.layout.popup_details_person, null);
-    		final PopupWindow popupWindow = new PopupWindow(
+    		popupWindow = new PopupWindow(
     				popupView,
     				LayoutParams.WRAP_CONTENT,
-    				LayoutParams.WRAP_CONTENT);    		
+    				LayoutParams.WRAP_CONTENT);
+    		
+    		
     		
     		
     		//TextView textView = (TextView) popupView.findViewById(R.id.tPersonGivenname);
     		//textView.setText(this.name);
+    		
+    		
     		
     		
     		//Back Button
@@ -108,6 +125,9 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 
     		//popupWindow.showAsDropDown(btnPop);
     		popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+    		
+    		popupWindow.setFocusable(true);
+    		popupWindow.update();
     		
     	
     	//}
