@@ -186,7 +186,7 @@ public class SignUpActivity extends Activity {
 	{
 		Log.d(DebugLoginTag, "Sign up successfull");
 		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
-		boolean keep_login = pref.getBoolean("Settings", false);
+		boolean keep_login = pref.getBoolean("keepLogin", false);
 		if(!keep_login && ParseUser.getCurrentUser() != null)
 		{
 			ParseUser.logOut();

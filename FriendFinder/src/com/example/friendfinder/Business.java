@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -52,9 +53,22 @@ public class Business  {
 	public static void CheckLogout(Context context)
 	{
 		SharedPreferences pref = context.getSharedPreferences("Settings", 0); //0 is for mod private
-		boolean keep_login = pref.getBoolean("Settings", false);
+		boolean keep_login = pref.getBoolean("keepLogin", false);
 		if(!keep_login && ParseUser.getCurrentUser() != null)
+		{
 			ParseUser.logOut();
+			Log.d("logout", "in business, will logout");
+		}
+		else
+		{
+			Log.d("logout", "in business, wont logout");
+		}
+		
+		if(keep_login)
+			Log.d("keep_login is ", "true");
+		else
+			Log.d("keep_login is ", "false");
+		
 	}
 
 }

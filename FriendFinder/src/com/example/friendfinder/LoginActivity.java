@@ -51,7 +51,7 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 		DatabaseHelper.initializeParse(LoginActivity.this);
 		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
-		boolean keep_login = pref.getBoolean("Settings", false);
+		boolean keep_login = pref.getBoolean("keepLogin", false);
 		if(ParseUser.getCurrentUser() != null)
 		{
 			if(!keep_login)
@@ -174,6 +174,7 @@ public class LoginActivity extends Activity {
 			SharedPreferences.Editor editor = pref.edit();			
 			editor.putBoolean("keepLogin", keepLogin.isChecked());
 			editor.commit();
+			
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);

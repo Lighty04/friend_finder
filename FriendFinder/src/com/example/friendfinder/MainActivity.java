@@ -38,7 +38,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+        user = ParseUser.getCurrentUser();
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
         Mmap = ((SupportMapFragment) getSupportFragmentManager()
@@ -55,7 +55,12 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 				if(user != null)
 				{
 					ParseUser.logOut();
+					Log.d("logout", "going to log out");
 					finish();
+				}
+				else
+				{
+					Log.d("logout", "cant log out");
 				}
 			}
 		});
@@ -372,6 +377,7 @@ Log.d("test", name);
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		Log.d("logout", "onDestroy called, lets log out");
 		Business.CheckLogout(this);
 	}
 	
