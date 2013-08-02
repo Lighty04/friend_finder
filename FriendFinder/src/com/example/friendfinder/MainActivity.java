@@ -64,8 +64,8 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     				LayoutParams.WRAP_CONTENT);    		
     		
     		
-    		TextView textView = (TextView) popupView.findViewById(R.id.textViewPerson);
-    		textView.setText(this.name);
+    		//TextView textView = (TextView) popupView.findViewById(R.id.tPersonGivenname);
+    		//textView.setText(this.name);
     		
     		
     		//Back Button
