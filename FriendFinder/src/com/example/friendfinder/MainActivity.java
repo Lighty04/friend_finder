@@ -42,6 +42,11 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         user = ParseUser.getCurrentUser();
+        
+        Log.d("remi", "test");
+        //Business.SaveAMarker("test!!", "Coucou");
+        //Business.GetallMarker(this);
+        
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
         Mmap = ((SupportMapFragment) getSupportFragmentManager()
@@ -52,7 +57,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         bLogOut = (Button) findViewById(R.id.logOut);
         bLogOut.setVisibility(View.INVISIBLE);
         
-        /*customOr = new OrientationEventListener(this) {
+         /*customOr = new OrientationEventListener(this) {
 			
 			@Override
 			public void onOrientationChanged(int orientation) {
@@ -166,7 +171,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
     	
-    	Log.d("Test", "COUOCOIU");
+   
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }   
@@ -221,6 +226,14 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
 	}
 	
+	public void processFoundAMarker(ParseObject marker)
+	{
+		
+	}
+	public void processFoundAllMarker(ParseObject marker)
+	{
+		
+	}
 	
 	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
 	{

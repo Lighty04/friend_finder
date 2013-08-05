@@ -29,12 +29,19 @@ public class Business  {
 		DatabaseHelper.SaveFriend(user, context);
 	}
 	
+	public static void GetaMarker(String title, Context context)
+	{
+		DatabaseHelper.GetAMarker(context, title);
+	}
+	
+	public static void GetallMarker(Context context)
+	{
+		DatabaseHelper.GetAllMarker(context);
+	}
+	
 	public static void SaveAMarker(String info, String title)
 	{
-		ParseObject marker = new ParseObject("Marker");
-		marker.put("title",title);
-		marker.put("description", info);
-		DatabaseHelper.SaveMarker(marker);
+		DatabaseHelper.SaveMarker(info, title);
 	}
 
 	public static void DeleteFriend(ParseUser user, Context context) {

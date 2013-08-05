@@ -214,13 +214,62 @@ public class DatabaseHelper {
 		
 	}
 	
+	public static void GetAllMarker (final Context context)
+	{
+		final ParseUser current_user = ParseUser.getCurrentUser();
+		   Log.d("remi", "data");
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Marker");
+		query.whereEqualTo("UserId", current_user);
+		query.findInBackground(new FindCallback<ParseObject>() {
+		    public void done(List<ParseObject> scoreList, ParseException e) {
+		        if (e == null) {
+		            Log.d("score", "Retrieved " + scoreList.size() + " scores");
+		        } else {
+		            Log.d("score", "Error: " + e.getMessage());
+		        }
+		    }
+		});
+		
+		
+	}
 	
-	public static boolean SaveMarker (ParseObject marker)
+	public static void GetAMarker (final Context context, String title)
+	{
+		
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Marker");
+		query.whereEqualTo("title", title);
+		query.getFirstInBackground(new GetCallback<ParseObject>() {
+		  public void done(ParseObject object, ParseException e) {
+		    if (object == null) {
+		      Log.d("remi", "The getFirst request failed.");
+		    } else {
+		      Log.d("remi", "Retrieved the object.");
+		      ((MainActivity) context).processFoundAMarker(object);
+		    }
+		  }
+		});
+		
+	}
+	
+	public static boolean SaveMarker (String info, String title)
 	{
 		try
 		{
 			final ParseUser current_user = ParseUser.getCurrentUser();
-			marker.put("Userid", current_user.getObjectId());
+			
+			ParseObject marker = new ParseObject("Marker");
+			
+			marker.put("title", title);
+			marker.put("description", info);
+			marker.put("UserId",current_user);
+			
+			
+			ParseGeoPoint point = (ParseGeoPoint) current_user.get("position");
+			marker.put("position", point);
+			Log.d("remi", "point");
+			//marker.put("position", value)
+			
+			
 			marker.saveInBackground();
 		
 		return true;
