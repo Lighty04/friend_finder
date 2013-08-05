@@ -34,6 +34,14 @@
             android:name="com.google.android.maps.v2.API_KEY"
 
             android:value="AIzaSyAyMWfT816p1MkSb7kpCGBVweoiQl8_1UQ" />
+        
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+
+            android:value="AIzaSyAnRzhcUcCMLufXpz7KAOtWlmFX5v96Yc0" />
+        
+         	
+
 
          <activity
             android:name="com.example.friendfinder.MainActivity"

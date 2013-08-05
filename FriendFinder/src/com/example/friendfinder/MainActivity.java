@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -51,6 +50,13 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         Business.FindAllFriend(this);
         bLogOut = (Button) findViewById(R.id.logOut);
         bLogOut.setVisibility(View.INVISIBLE);
+        
+        
+        Log.v("call", "MainActivity");
+        
+        Business.searchFirstLastName(this, "lol lol");
+        
+        
         
         /*customOr = new OrientationEventListener(this) {
 			
@@ -341,6 +347,15 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	{
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("FirstName").toString());
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
+	}
+	
+	public void processSearchFirstLastName(List<String> objectIdsMetadata) {
+		
+		for(int i=0; i<objectIdsMetadata.size(); i++) {
+			Log.v("call", ""+objectIdsMetadata.get(i));
+		}
+		
+		
 	}
 	
 	//TO DELETE

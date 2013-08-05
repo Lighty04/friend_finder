@@ -39,16 +39,22 @@ public class Business  {
 	public static void FindAFriend(HashMap<String, String> dictionary, Context context) {
 		// TODO Auto-generated method stub
 		DatabaseHelper.CheckOutAFriend(dictionary, context);
-
 		
 	}
 
 	public static void FindAllFriend(Context context) {
 		
-		DatabaseHelper.CheckOutAllFriend(context);
-		
+		DatabaseHelper.CheckOutAllFriend(context);	
 		
 	}
+	
+	public static void searchFirstLastName(Context context, String name) {
+		
+		Log.v("call", "Business.SearchFirstLastName");
+		
+		DatabaseHelper.searchFirstLastName(context, name);
+	}
+	
 	
 	public static void CheckLogout(Context context)
 	{
