@@ -2,12 +2,14 @@ package com.example.friendfinder;
 
 import java.util.List;
 
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -32,6 +34,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
 	private Button bLogOut;
+	//private OrientationEventListener customOr;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +50,17 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         Business.FindAllFriend(this);
         bLogOut = (Button) findViewById(R.id.logOut);
+        bLogOut.setVisibility(View.INVISIBLE);
+        
+        /*customOr = new OrientationEventListener(this) {
+			
+			@Override
+			public void onOrientationChanged(int orientation) {
+				Log.d("orientation", "orientation Changed " + String.valueOf(orientation));
+			}
+		};
+		
+		customOr.enable();*/
         
         bLogOut.setOnClickListener(new OnClickListener() {
 			
@@ -228,6 +242,12 @@ public class MainActivity extends FragmentActivity implements LocationListener {
             }
         });
         
+        //after we created the activity, we log that the rotation is over, so if we quit right now we can logout
+        //depeding on current settings;
+        SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
+		SharedPreferences.Editor editor = pref.edit();			
+		editor.putBoolean("goingToRotate", false);
+		editor.commit();
 
     }
 
@@ -365,20 +385,38 @@ Log.d("test", name);
 
 			
 		}
+		 bLogOut.setVisibility(View.VISIBLE);
 		 return true;
 	}
 	
 	public void errorFriendCircles(String errorMessage)
 	{
 		Log.d(DebugLoginTag, errorMessage);
+		bLogOut.setVisibility(View.VISIBLE);
 	}
-
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		//we log the fact that we're going to rotate the screen so that in destroy will not log out the user
+		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
+		SharedPreferences.Editor editor = pref.edit();
+		editor.commit();
+		
+	}
+	
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		Log.d("logout", "onDestroy called, lets log out");
-		Business.CheckLogout(this);
+		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE); //0 is for mode private
+		boolean goingToRotate = pref.getBoolean("goingToRotate", true);
+		Log.d("onDestroy", "going to rotate is " + String.valueOf(goingToRotate));
+		//if we are not going to rotate(for example we're going to kill the app) then we can try to logout;
+		if(!goingToRotate)
+			Business.CheckLogout(this);
 	}
 	
 }
