@@ -106,7 +106,13 @@ public class LoginActivity extends Activity {
 	@Override
 	protected void onStart() {
 		// TODO Auto-generated method stub
-		super.onStart();		
+		super.onStart();
+		
+		
+		/**************************
+		showProgress(false);
+		startMainActivity();
+		*********************************/
 	}
 	
 	@Override

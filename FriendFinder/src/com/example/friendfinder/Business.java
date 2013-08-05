@@ -12,7 +12,7 @@ import com.parse.ParseUser;
 public class Business  {
 
 	public static void NewUser(final ParseUser user, final ParseObject metaData, Context context) {
-		// TODO Auto-generated method stub		
+			
 		DatabaseHelper.SignUpUser(user, metaData, context);
 	}
 
@@ -28,16 +28,23 @@ public class Business  {
 	{
 		DatabaseHelper.SaveFriend(user, context);
 	}
+	
+	public static void SaveAMarker(String info, String title)
+	{
+		ParseObject marker = new ParseObject("Marker");
+		marker.put("title",title);
+		marker.put("description", info);
+		DatabaseHelper.SaveMarker(marker);
+	}
 
 	public static void DeleteFriend(ParseUser user, Context context) {
 		
 		DatabaseHelper.DeleteFriend(user, context);
 		
 	}
-//
 
 	public static void FindAFriend(HashMap<String, String> dictionary, Context context) {
-		// TODO Auto-generated method stub
+		
 		DatabaseHelper.CheckOutAFriend(dictionary, context);
 
 		

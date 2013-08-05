@@ -214,6 +214,24 @@ public class DatabaseHelper {
 		
 	}
 	
+	
+	public static boolean SaveMarker (ParseObject marker)
+	{
+		try
+		{
+			final ParseUser current_user = ParseUser.getCurrentUser();
+			marker.put("Userid", current_user.getObjectId());
+			marker.saveInBackground();
+		
+		return true;
+		}catch( Exception e)
+		{
+			return false;
+		}
+		
+	}
+	
+	
 	public static boolean DeleteFriend(ParseUser user, final Context context)
 	{
 		try

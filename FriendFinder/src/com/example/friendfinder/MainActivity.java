@@ -75,59 +75,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
       
        
       
-
-     
- 
-
-            /*          for ( int i = 0; i < myObject.size(); i++) {
-
-                            Object commGet = myObject.get(i).getString("Comment");
-
-                            double geo1Dub = myObject.get(i).getParseGeoPoint("location").getLatitude();
-                            double geo2Dub = myObject.get(i).getParseGeoPoint("location").getLongitude();
-
-                           Location aLocation = new Location("first");
-                           aLocation.setLatitude(geo1Dub);
-                           aLocation.setLongitude(geo2Dub);
-                          ;
-                         
-                                    map.addMarker(new MarkerOptions().position(new LatLng(geo1Dub,geo2Dub)).title((String) commGet)                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
-
-                                                                                           
-
-                           }
-
-              
-            }
-        });      
-        
-        
-        */
-        
-        
-        
-        
-//------------------------------------------------------------------------------------------
-      /*  final Button button = (Button) findViewById(R.id.button1);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                
-            	map.addMarker(new MarkerOptions()
-                .position(new LatLng(10, 10))
-                .title("Marker")
-                .draggable(true)
-                .snippet("Juan")
-                .icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_RED)));	
-            	
-            	
-            }
-        });  */
-        
-        
-   //---------------------------------------------------------------------------------------     
-        
-        
         
         	Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
         		
@@ -146,18 +93,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         	    	 double lat2 = location1.getLatitude();
         	    	 double lon2 = location1.getLongitude();
         	    	 
-        	    	 
-        	        /*    Toast.makeText(MainActivity.this,
-        	                    "Current location " + map.getMyLocation().getLatitude(),
-        	                    Toast.LENGTH_SHORT).show(); */
-        	             	            
-        	    /*	Toast.makeText(
-        	                MainActivity.this,
-        	                "Lat " + location1.getLatitude() + " "
-        	                        + "Long " + location1.getLongitude(),
-        	                Toast.LENGTH_LONG).show();
-        	    	System.out.println("hola"); */
-
+        	    
        float[] results = new float[1]; // 1, 2 or 3 depending on what information
        Location.distanceBetween(lat1, lon1, lat2, lon2, results);
        float distance = results[0];	
@@ -167,18 +103,11 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                Toast.LENGTH_SHORT).show();
         	               
         	            
-            }
-        		
-
-
-        			
-        			
+            }	
         		
         		});	
         	
-        
-        
-        
+   
         
         Mmap.setOnMarkerDragListener(new OnMarkerDragListener() {
 
@@ -192,27 +121,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
             @Override
             public void onMarkerDragEnd(Marker marker) {
-            /*	LatLng position = marker.getPosition(); //
-            	Toast.makeText(
-            	                MainActivity.this,
-            	                "Lat " + position.latitude + " "
-            	                        + "Long " + position.longitude,
-            	                Toast.LENGTH_LONG).show(); */
-            
-            	
-            	
-            	
-            	
-            /*	Location location1 = new Location("");
-            	location1.setLatitude(position.latitude);
-            	location1.setLongitude(position.longitude);
-            	
-            	
-            	Toast.makeText(
-    	                MainActivity.this,
-    	                "Lat " + location1.getLatitude() + " "
-    	                        + "Long " + location1.getLongitude(),
-    	                Toast.LENGTH_LONG).show();*/
+         
             
             
             }
@@ -236,6 +145,8 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+    	
+    	Log.d("Test", "COUOCOIU");
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }   
@@ -268,40 +179,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		
 	}
 
-  /*  public boolean onMarkerClickListener(final Marker marker) {
-
-    	
-    	
- /*      if (marker.equals(map)) {
-            // handle click here
-        //    map.getMyLocation();
-            System.out.println("Clicked"); 
-            double lat = map.getMyLocation().getLatitude();
-            System.out.println("Lat" + lat);
-            Toast.makeText(MainActivity.this,
-                    "Current location " + map.getMyLocation().getLatitude(),
-                    Toast.LENGTH_SHORT).show();
-        }
-    	
-    	LatLng position = marker.getPosition();
-    	Location location1 = new Location("");
-    	location1.setLatitude(position.latitude);
-    	location1.setLongitude(position.longitude);
-    	
-    	
-    	Toast.makeText(
-                MainActivity.this,
-                "Lat " + location1.getLatitude() + " "
-                        + "Long " + location1.getLongitude(),
-                Toast.LENGTH_LONG).show();
-    	System.out.println("hola");
-    	 //
-    
-  //  }
-    	
-        return false;
-    } */
-
+ 
 	public void processFriendCircles(List<ParseObject> objects)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -323,16 +201,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
 	}
 	
-	//TO DELETE
-	/*public void processFoundAllFriend(List<ParseUser> usrList)
-	{
-		//PlaceAllFriend(usrList);
-		Log.d(DebugLoginTag, "ListFriend");
-		for (ParseUser parseUser : usrList) 
-		{
-			Log.d("Friends", parseUser.getUsername());
-		}
-	}*/
 	
 	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
 	{
@@ -349,7 +217,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 			//ParseUser user = friendList.get(1);
 			String name = ((ParseObject)user.get("Metadata")).get("FirstName").toString() + " " +
 							((ParseObject)user.get("Metadata")).get("LastName").toString();
-Log.d("test", name);
+			Log.d("test", name);
              ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
              
              double longitude = geoPoint.getLongitude();
