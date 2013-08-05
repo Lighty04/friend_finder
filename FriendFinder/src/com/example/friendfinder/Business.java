@@ -59,16 +59,11 @@ public class Business  {
 	
 	public static void CheckLogout(Context context)
 	{
-		SharedPreferences pref = context.getSharedPreferences("Settings", 0); //0 is for mod private
+		SharedPreferences pref = context.getSharedPreferences("Settings", 0); //0 is for mode private
 		boolean keep_login = pref.getBoolean("keepLogin", false);
 		if(!keep_login && ParseUser.getCurrentUser() != null)
 		{
 			ParseUser.logOut();
-			Log.d("logout", "in business, will logout");
-		}
-		else
-		{
-			Log.d("logout", "in business, wont logout");
 		}
 		
 		if(keep_login)

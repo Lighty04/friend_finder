@@ -50,15 +50,6 @@ public class LoginActivity extends Activity {
 
 		setContentView(R.layout.activity_login);
 		DatabaseHelper.initializeParse(LoginActivity.this);
-		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
-		boolean keep_login = pref.getBoolean("keepLogin", false);
-		if(ParseUser.getCurrentUser() != null)
-		{
-			if(!keep_login)
-				ParseUser.logOut();
-			else
-				startMainActivity();
-		}
 			
 		// Set up the login form.
 		mEmailView = (EditText) findViewById(R.id.email);
