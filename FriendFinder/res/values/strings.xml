@@ -2,7 +2,11 @@
 <resources>
 
     <string name="app_name">FriendFinder</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string><string name="automaticGeolocSwitch">Automatic Geolocalization</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    
+    <string name="GPSSwitch">Localization Settings</string>
+    <string name="dataTextSwitch">Data Settings</string>
+    <string name="hello_world">hello world</string>
 
 </resources>
