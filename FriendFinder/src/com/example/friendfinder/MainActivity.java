@@ -1,17 +1,21 @@
 package com.example.friendfinder;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.PopupWindow;
-import android.widget.Toast;
+import android.widget.SearchView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -47,7 +51,9 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 			        .icon(BitmapDescriptorFactory
 			        .defaultMarker(BitmapDescriptorFactory.HUE_RED)));
         
-        Toast.makeText(getApplicationContext(), "String", Toast.LENGTH_LONG).show();
+        //Search
+        handleIntent(getIntent());
+        
 		
 			
 	}
@@ -118,12 +124,46 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     		return true;
 	}
 	
-	@Override
+	@Override //Search
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.options_menu, menu);
-		return true;
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.options_menu, menu);
+
+	    // Associate searchable configuration with the SearchView
+	    SearchManager searchManager =
+	           (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+	    SearchView searchView =
+	            (SearchView) menu.findItem(R.id.search).getActionView();
+	    searchView.setSearchableInfo(
+	            searchManager.getSearchableInfo(getComponentName()));
+
+	    return true;
+
 	}
+	
+
+    @Override //Search
+    protected void onNewIntent(Intent intent) {
+    	
+    	handleIntent(intent);
+    }
+    
+    //Search
+    private void handleIntent(Intent intent) {
+    	
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            
+            //Toast.makeText(getApplicationContext(), "handleIntent: " + query, Toast.LENGTH_LONG).show();
+            
+            Log.v("call", "Query: "+query);
+            
+            //use the query to search your data somehow
+        }
+    }
+
+	
+
 
 		
 		

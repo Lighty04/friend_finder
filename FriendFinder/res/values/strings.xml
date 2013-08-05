@@ -16,6 +16,7 @@
     
     <!-- Search -->
     <string name="search_title">Search Title</string>
+    <string name="search_hint">Search Hint</string>
 
 </resources>
 
