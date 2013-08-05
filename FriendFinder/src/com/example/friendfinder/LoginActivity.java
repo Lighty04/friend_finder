@@ -50,7 +50,7 @@ public class LoginActivity extends Activity {
 
 		setContentView(R.layout.activity_login);
 		DatabaseHelper.initializeParse(LoginActivity.this);
-			
+			ParseUser.logOut();
 		// Set up the login form.
 		mEmailView = (EditText) findViewById(R.id.email);
 
