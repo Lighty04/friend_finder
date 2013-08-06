@@ -7,8 +7,9 @@ import java.util.Map.Entry;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.maps.GeoPoint;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.LogInCallback;
@@ -297,7 +298,7 @@ public class DatabaseHelper {
 		
 		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
 		 
-		 
+
 		 
 		 ParseQuery<ParseObject> queryMetadata1 = ParseQuery.getQuery("Metadata");
 		 queryMetadata1.whereEqualTo("FirstName", nameParts[0]);
@@ -313,57 +314,20 @@ public class DatabaseHelper {
 		 ParseQuery<ParseObject> queryMetadata = ParseQuery.or(listQ);
 		 
 		 
-		 queryMetadata.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> objects, ParseException e) {
-                if (e == null) {	                    		
-            		List<String> objectIdsMetadata = new ArrayList<String>(); 
-            		          		
-            	    for (int i = 0; i < objects.size(); i++) {
-                    	
-                    	boolean add = true;
-                    	String currentObjectId = (String)objects.get(i).getObjectId();
-                    	
-						//check if id was already saved
-                    	for(int j = 0; j<objectIdsMetadata.size(); j++) {
-                    		if(objectIdsMetadata.get(j) == currentObjectId) {
-                    			add = false;
-                    			break;
-                    		}
-                    	}
-                    	if (add == true) {
-                    		/*ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
-                    		
-                    		//ParseQuery<ParseUser> queryUser = ParseUser.
-                    		//queryUser.whereEqualTo("Metadata", currentObjectId);
-                    		
-                    		//ParseUser usr1 = parseObject.getParseUser("UserFriendId");
-                                  		
-                    		
-                    		queryUser.findInBackground(new FindCallback<ParseObject>() {
-                                public void done(List<ParseObject> objects1, ParseException e1) {
-                                    if (e1 == null) {
-                                    	//Log.v("call", "null");
-                                    	Log.v("call", ""+objects1.size());
-                                    	
-                                    	for(int k = 0; k < objects1.size(); k++) {
-                                    		
-                                    		String currentPosition = (String)objects1.get(k).get("username");
-                                    		
-                                    		Log.v("call", currentPosition);
-                                    	}
-                                    } else {
-                                    	((MainActivity) context).errorFriendCircles(e1.getMessage());                                    	
-                                    }
-                                }
-                    		});*/
-                    		
-                    		
-                    		
-                    		objectIdsMetadata.add(currentObjectId);
-                    	} 
-                    }
-                    
-				 	((MainActivity) context).processSearchFirstLastName(objectIdsMetadata);
+		 ParseQuery<ParseUser> queryUser = ParseUser.getQuery(); 	
+ 		queryUser.whereMatchesQuery("Metadata", queryMetadata);
+ 		queryUser.include("Metadata");
+		 
+ 		queryUser.findInBackground(new FindCallback<ParseUser>() {
+            public void done(List<ParseUser> listUser, ParseException e) {
+                if (e == null) {
+                	ArrayList<LatLng> listPosition = new ArrayList<LatLng>();
+					 for (ParseObject parseObject : listUser) {
+						 Log.v("call", String.valueOf(parseObject.getParseGeoPoint("position").getLongitude()));
+						 
+						 listPosition.add(new LatLng(parseObject.getParseGeoPoint("position").getLatitude(), parseObject.getParseGeoPoint("position").getLongitude()));
+					}
+					 ((MainActivity) context).processSearchFirstLastName(listPosition);
    				 }
    				 else
    				 {

@@ -24,6 +24,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -33,6 +34,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.maps.GeoPoint;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -62,9 +64,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
         bLogOut.setVisibility(View.INVISIBLE);
        
         
-        //Search
-        Log.v("call", "MainActivity");        
-        Business.searchFirstLastName(this, "lol lol"); 
+        
         
         //Search
         handleIntent(getIntent());
@@ -209,12 +209,11 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     	
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            
-            //Toast.makeText(getApplicationContext(), "handleIntent: " + query, Toast.LENGTH_LONG).show();
-            
+                       
             Log.v("call", "Query: "+query);
             
-            //use the query to search your data somehow
+            //Search     
+            Business.searchFirstLastName(this, query); 
         }
     }
 
@@ -369,12 +368,23 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
 	}
 	
-	public void processSearchFirstLastName(List<String> objectIdsMetadata) {
+	public void processSearchFirstLastName(List<LatLng> positionsUsers) {
 		
-		for(int i=0; i<objectIdsMetadata.size(); i++) {
-			Log.v("call", ""+objectIdsMetadata.get(i));
+		
+		for(int i=0; i<positionsUsers.size(); i++) {			
+			
+			Mmap.addMarker(new MarkerOptions()
+	        .position(positionsUsers.get(i))
+	        .title("Marker")
+	        .draggable(true)
+	        .snippet("Kony")
+	        .icon(BitmapDescriptorFactory
+	        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+			
+			Mmap.moveCamera(CameraUpdateFactory.newLatLngZoom(positionsUsers.get(i), 5));
 		}
 		
+		Log.v("call", "MainActivity.processSearchFirstLastName");
 		
 	}
 	

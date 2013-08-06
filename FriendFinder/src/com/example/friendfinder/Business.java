@@ -50,9 +50,8 @@ public class Business  {
 	
 	public static void searchFirstLastName(Context context, String name) {
 		
-		Log.v("call", "Business.SearchFirstLastName");
-		
 		DatabaseHelper.searchFirstLastName(context, name);
+		Log.v("call", "Business.searchFirstLastName");
 	}
 	
 	
