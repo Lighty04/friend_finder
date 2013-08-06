@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">FriendFinder</string>
+    <string name="app_name">PopupFriendFinder_v1</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="log_out">Log out</string>
 
+    
+    <!-- PopUpDetailsPerson  -->
+    <string name="phone">Phone</string>
+    <string name="email">Email</string>
+    <string name="facebook_chat">Facebook Chat</string>
+    <string name="given_name">Maximilian</string>
+    <string name="family_name">Mustermann</string>
+    <string name="image_person">Image Person</string>
+    <string name="back">back</string>
+    
+    <!-- Search -->
+    <string name="search_title">Search Title</string>
+    <string name="search_hint">Search Hint</string>
+
 </resources>
+

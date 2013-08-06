@@ -2,21 +2,31 @@ package com.example.friendfinder;
 
 import java.util.List;
 
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.location.LocationListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.PopupWindow;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -27,7 +37,7 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
-public class MainActivity extends FragmentActivity implements LocationListener {
+public class MainActivity extends FragmentActivity implements OnMarkerClickListener {
 
     GoogleMap Mmap;
     private ParseUser user = null;
@@ -50,23 +60,13 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         Business.FindAllFriend(this);
         bLogOut = (Button) findViewById(R.id.logOut);
         bLogOut.setVisibility(View.INVISIBLE);
+       
         
         
-        Log.v("call", "MainActivity");
-        
-        Business.searchFirstLastName(this, "lol lol");
-        
+        Log.v("call", "MainActivity");        
+        Business.searchFirstLastName(this, "lol lol"); 
         
         
-        /*customOr = new OrientationEventListener(this) {
-			
-			@Override
-			public void onOrientationChanged(int orientation) {
-				Log.d("orientation", "orientation Changed " + String.valueOf(orientation));
-			}
-		};
-		
-		customOr.enable();*/
         
         bLogOut.setOnClickListener(new OnClickListener() {
 			
@@ -85,119 +85,50 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 			}
 		});
         
+        Mmap.setOnMarkerClickListener(this);
+        
         Mmap.addMarker(new MarkerOptions()
                 .position(new LatLng(0, 0))
                 .title("Marker")
                 .draggable(true)
                 .snippet("Juan")
                 .icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-      
+                .defaultMarker(BitmapDescriptorFactory.HUE_RED)));   
        
-      
-
-     
  
-
-            /*          for ( int i = 0; i < myObject.size(); i++) {
-
-                            Object commGet = myObject.get(i).getString("Comment");
-
-                            double geo1Dub = myObject.get(i).getParseGeoPoint("location").getLatitude();
-                            double geo2Dub = myObject.get(i).getParseGeoPoint("location").getLongitude();
-
-                           Location aLocation = new Location("first");
-                           aLocation.setLatitude(geo1Dub);
-                           aLocation.setLongitude(geo2Dub);
-                          ;
-                         
-                                    map.addMarker(new MarkerOptions().position(new LatLng(geo1Dub,geo2Dub)).title((String) commGet)                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
-
-                                                                                           
-
-                           }
-
-              
-            }
-        });      
+        //Search
+        handleIntent(getIntent());
         
-        
-        */
-        
-        
-        
-        
-//------------------------------------------------------------------------------------------
-      /*  final Button button = (Button) findViewById(R.id.button1);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                
-            	map.addMarker(new MarkerOptions()
-                .position(new LatLng(10, 10))
-                .title("Marker")
-                .draggable(true)
-                .snippet("Juan")
-                .icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_RED)));	
-            	
-            	
-            }
-        });  */
-        
-        
-   //---------------------------------------------------------------------------------------     
-        
-        
-        
-        	Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
-        		
-        		@Override
-        	    public void onInfoWindowClick(Marker marker) {
-                // When touch InfoWindow on the market, display another screen.
-        			      			
-        			
-        			LatLng position = marker.getPosition();
-        	    	Location location1 = new Location("");
-        	    	location1.setLatitude(position.latitude);
-        	    	location1.setLongitude(position.longitude);
-        	    	
-        	    	 double lat1 = Mmap.getMyLocation().getLatitude();
-        	    	 double lon1 = Mmap.getMyLocation().getLongitude();
-        	    	 double lat2 = location1.getLatitude();
-        	    	 double lon2 = location1.getLongitude();
-        	    	 
-        	    	 
-        	        /*    Toast.makeText(MainActivity.this,
-        	                    "Current location " + map.getMyLocation().getLatitude(),
-        	                    Toast.LENGTH_SHORT).show(); */
-        	             	            
-        	    /*	Toast.makeText(
-        	                MainActivity.this,
-        	                "Lat " + location1.getLatitude() + " "
-        	                        + "Long " + location1.getLongitude(),
-        	                Toast.LENGTH_LONG).show();
-        	    	System.out.println("hola"); */
-
-       float[] results = new float[1]; // 1, 2 or 3 depending on what information
-       Location.distanceBetween(lat1, lon1, lat2, lon2, results);
-       float distance = results[0];	
-       
-       Toast.makeText(MainActivity.this,
-               "Your friend is " +distance+" meters away from you!",
-               Toast.LENGTH_SHORT).show();
-        	               
+		Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
+			
+			@Override
+		    public void onInfoWindowClick(Marker marker) {
+		    // When touch InfoWindow on the market, display another screen.
+		      			
+		
+				LatLng position = marker.getPosition();
+				Location location1 = new Location("");
+				location1.setLatitude(position.latitude);
+				location1.setLongitude(position.longitude);
+				
+				 double lat1 = Mmap.getMyLocation().getLatitude();
+				 double lon1 = Mmap.getMyLocation().getLongitude();
+				 double lat2 = location1.getLatitude();
+				 double lon2 = location1.getLongitude();
+	        	    	 
+	
+	
+		       float[] results = new float[1]; // 1, 2 or 3 depending on what information
+		       Location.distanceBetween(lat1, lon1, lat2, lon2, results);
+		       float distance = results[0];	
+		       
+		       Toast.makeText(MainActivity.this,
+		               "Your friend is " +distance+" meters away from you!",
+		               Toast.LENGTH_SHORT).show();	        	               
         	            
             }
-        		
-
-
-        			
-        			
-        		
-        		});	
-        	
-        
-        
+			
+		});  
         
         
         Mmap.setOnMarkerDragListener(new OnMarkerDragListener() {
@@ -218,10 +149,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
             	                "Lat " + position.latitude + " "
             	                        + "Long " + position.longitude,
             	                Toast.LENGTH_LONG).show(); */
-            
-            	
-            	
-            	
             	
             /*	Location location1 = new Location("");
             	location1.setLatitude(position.latitude);
@@ -233,11 +160,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     	                "Lat " + location1.getLatitude() + " "
     	                        + "Long " + location1.getLongitude(),
     	                Toast.LENGTH_LONG).show();*/
-            
-            
             }
-            
-            
            
             @Override
             public void onMarkerDrag(Marker marker) {
@@ -256,31 +179,128 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		editor.commit();
 
     }
+    
+    
+    
+	@Override //Search
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.options_menu, menu);
+
+	    // Associate searchable configuration with the SearchView
+	    SearchManager searchManager =
+	           (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+	    SearchView searchView =
+	            (SearchView) menu.findItem(R.id.search).getActionView();
+	    searchView.setSearchableInfo(
+	            searchManager.getSearchableInfo(getComponentName()));
+	    return true;
+	}
+	
+
+    @Override //Search
+    protected void onNewIntent(Intent intent) {
+    	
+    	handleIntent(intent);
+    }
+    
+    //Search
+    private void handleIntent(Intent intent) {
+    	
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            
+            //Toast.makeText(getApplicationContext(), "handleIntent: " + query, Toast.LENGTH_LONG).show();
+            
+            Log.v("call", "Query: "+query);
+            
+            //use the query to search your data somehow
+        }
+    }
 
     
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }   
+
 
 	@Override
-	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
-		
-	}
+	public boolean onMarkerClick(Marker arg0) {
+		//if (v.getId() == R.id.btnShowPopup) {
+    		LayoutInflater layoutInflater = 
+    				(LayoutInflater) getBaseContext()
+    				.getSystemService(LAYOUT_INFLATER_SERVICE);   		
+    		
+    		View popupView = layoutInflater.inflate(
+    				R.layout.popup_details_person, null);
+    		final PopupWindow popupWindow = new PopupWindow(
+    				popupView,
+    				LayoutParams.WRAP_CONTENT,
+    				LayoutParams.WRAP_CONTENT);    		
+    		
+    		
+    		//TextView textView = (TextView) popupView.findViewById(R.id.tPersonGivenname);
+    		//textView.setText(this.name);
+    		
+    		
+    		//Back Button
+    		Button btnBack = (Button) popupView.findViewById(R.id.btnFacebookChat);
+    		btnBack.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				popupWindow.dismiss();
+    			}
+    		});
+    		
+    		//Phone Button
+    		Button btnPhone = (Button) popupView.findViewById(R.id.btnPhone);
+    		btnPhone.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				//make phone call
+    				Uri uriCall = Uri.parse("tel:12345");
+    				Intent callIntent = new Intent(Intent.ACTION_DIAL, uriCall);
+    			    startActivity(callIntent);
+    				//popupWindow.dismiss();
 
+    			}
+    		});
+    		
+    		//Email Button
+    		Button btnEmail = (Button) popupView.findViewById(R.id.btnEmail);
+    		btnEmail.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				//send email   				 
+    				Uri uriEmail = Uri.parse("mailto:email@hotmail.com");
+    				Intent emailIntent = new Intent(Intent.ACTION_SENDTO, uriEmail);
+    				emailIntent.putExtra(Intent.EXTRA_TEXT, "The email body text");     
+    				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "The email subject text");   
+    				startActivity(emailIntent);
+    			}
+    		});    		
+    		
+
+    		//popupWindow.showAsDropDown(btnPop);
+    		popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+    		
+    	
+    	//}
+	
+    		return true;
+	}
+	
+	/*
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
 		
 	}
+    
 
+	@Override
+	public void onLocationChanged(Location location) {
+		// TODO Auto-generated method stub
+	}
 	
-		
-	
+
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -292,7 +312,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
 		
-	}
+	}*/
 
   /*  public boolean onMarkerClickListener(final Marker marker) {
 
@@ -435,3 +455,4 @@ Log.d("test", name);
 	}
 	
 }
+
