@@ -37,7 +37,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.maps.GeoPoint;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -46,7 +45,7 @@ import com.parse.ParseUser;
 
 public class MainActivity extends FragmentActivity implements OnMarkerClickListener {
 
-	private final long friendsUpdateDelay = 2000;
+	private final long friendsUpdateDelay = 10000;
     GoogleMap Mmap;
     private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
@@ -502,7 +501,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
              double longitude = geoPoint.getLongitude();
              double latitude = geoPoint.getLatitude();
              
-            Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(longitude,latitude)).title((String) name)
+            Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((String) name)
             		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
             friendsMarkers.add(m);
 		}
