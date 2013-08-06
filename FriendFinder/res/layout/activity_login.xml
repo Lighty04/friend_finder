@@ -86,6 +86,13 @@
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
                 android:text="@string/action_new_account" />
+
+            <Button
+                android:id="@+id/fb_sign_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sign_in_with_fb" />
+
         </LinearLayout>
     </ScrollView>
 

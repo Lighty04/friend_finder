@@ -65,5 +65,10 @@ public class Business  {
 			Log.d("keep_login is ", "false");
 		
 	}
+	
+	public static void fbLogin(Context context)
+	{
+		DatabaseHelper.fbLogin(context);
+	}
 
 }

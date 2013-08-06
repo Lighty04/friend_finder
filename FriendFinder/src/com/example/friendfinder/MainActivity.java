@@ -1,15 +1,20 @@
 package com.example.friendfinder;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,16 +29,24 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 public class MainActivity extends FragmentActivity implements LocationListener {
 
+	private final long friendsUpdateDelay = 2000;
     GoogleMap Mmap;
     private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
 	private Button bLogOut;
+	private ArrayList<Marker> friendsMarkers = new ArrayList<Marker>();
+	private Handler friendHandler = new Handler();
+	private Runnable friendRunnable = null; 
+	private boolean cancelUpdate = false;
 	//private OrientationEventListener customOr;
 	
     @Override
@@ -41,33 +54,105 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        cancelUpdate = false;
         user = ParseUser.getCurrentUser();
+
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
         Mmap = ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        Business.FindAllFriend(this);
+   
+        friendRunnable = new Runnable(){
+        	private List<ParseObject> list = null;
+        	private ArrayList<ParseUser> listUser = null;
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Log.d("intent", "here1");
+				// TODO Auto-generated method stub
+				final ParseUser current_user = ParseUser.getCurrentUser();
+
+				 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+
+				 
+				 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+				 query1.whereEqualTo("UserFriendId", current_user);
+				 
+				 
+				 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+				 query2.whereEqualTo("UserId", current_user);
+				 
+				 
+				 listQ.add(query1);
+				 listQ.add(query2);
+				 
+				 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
+				 query.include("UserId.Metadata");
+				 query.include("UserFriendId.Metadata");
+
+				 
+				 try {
+					 Log.d("async task", "here1");
+					list = query.find();
+					listUser = new ArrayList<ParseUser>();			
+					 for (ParseObject parseObject : list) {
+						
+						 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
+						 ParseUser usr2 = parseObject.getParseUser("UserId");
+						 
+						 Log.d("usr1", usr1.getUsername());
+						 Log.d("usr2", usr2.getUsername());
+						 
+						 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+						 {
+							 listUser.add(usr2);
+						 }
+						 else
+						 {
+							 listUser.add(usr1);
+						 }	
+					 }
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					Log.d("cancel", e1.getMessage());
+				}
+				 finally
+				 {
+					 runOnUiThread(new Runnable() {
+						public void run() {
+							Log.d("intent", "here2");
+							PlaceAllFriend(listUser);
+						}
+					});
+					 
+				 }
+				
+			}
+        	
+        };
+        friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
+        
         bLogOut = (Button) findViewById(R.id.logOut);
         bLogOut.setVisibility(View.INVISIBLE);
-        
-        /*customOr = new OrientationEventListener(this) {
-			
-			@Override
-			public void onOrientationChanged(int orientation) {
-				Log.d("orientation", "orientation Changed " + String.valueOf(orientation));
-			}
-		};
-		
-		customOr.enable();*/
         
         bLogOut.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
+				cancelUpdate = true;
+					//while(!cancel);
+					Log.d("cancel", "going to cancel");
+					friendHandler.removeCallbacks(friendRunnable);
+					//while(!finishedUpdatingFriendsMap);
+					
+				
 				if(user != null)
 				{
+					if(ParseFacebookUtils.getSession() != null)
+						ParseFacebookUtils.getSession().closeAndClearTokenInformation();
 					ParseUser.logOut();
 					Log.d("logout", "going to log out");
 					finish();
@@ -78,7 +163,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 				}
 			}
 		});
-        
         Mmap.addMarker(new MarkerOptions()
                 .position(new LatLng(0, 0))
                 .title("Marker")
@@ -250,8 +334,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		editor.commit();
 
     }
-
-    
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -362,7 +444,13 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	
 	public boolean PlaceAllFriend(List<ParseUser> friendList)
 	{
-		
+		for(int i = 0; i < friendsMarkers.size(); i++)
+		{
+			friendsMarkers.get(i).remove();
+		}
+		friendsMarkers.clear();
+		if(!cancelUpdate)
+		{
 		 for (ParseUser user : friendList) {
 			 
 		
@@ -380,11 +468,19 @@ Log.d("test", name);
             aLocation.setLatitude(latitude);
             aLocation.setLongitude(geo2Dub);*/
            
-            Mmap.addMarker(new MarkerOptions().position(new LatLng(longitude,latitude)).title((String) name)
-            		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
+            //MarkerOptions m = 
+            //Marker m = new Marker();
+            Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(longitude,latitude)).title((String) name)
+            		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            friendsMarkers.add(m);     
 
 			
 		}
+		}
+		 if(!cancelUpdate)
+		 {
+			 friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
+		 }
 		 bLogOut.setVisibility(View.VISIBLE);
 		 return true;
 	}
@@ -393,6 +489,10 @@ Log.d("test", name);
 	{
 		Log.d(DebugLoginTag, errorMessage);
 		bLogOut.setVisibility(View.VISIBLE);
+		if(!cancelUpdate)
+		{
+			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
+		}
 	}
 	
 	@Override
@@ -418,5 +518,17 @@ Log.d("test", name);
 		if(!goingToRotate)
 			Business.CheckLogout(this);
 	}
+	
+	/*public class ResponseReceiver extends BroadcastReceiver {
+		   public static final String ACTION_RESP =
+		      "com.mamlambo.intent.action.MESSAGE_PROCESSED";
+		   @Override
+		    public void onReceive(Context context, Intent intent) {
+		       /*TextView result = (TextView) findViewById(R.id.txt_result);
+		       String text = intent.getStringExtra(SimpleIntentService.PARAM_OUT_MSG);
+		       result.setText(text);*/
+		/*	   ((FriendsUpdateIntent) intent).listUser;
+		    }
+		}*/
 	
 }

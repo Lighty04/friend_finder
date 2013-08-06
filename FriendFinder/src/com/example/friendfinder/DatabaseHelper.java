@@ -8,11 +8,16 @@ import java.util.Map.Entry;
 import android.content.Context;
 import android.util.Log;
 
+import com.facebook.Request;
+import com.facebook.Request.GraphUserListCallback;
+import com.facebook.Response;
+import com.facebook.model.GraphUser;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -29,6 +34,7 @@ public class DatabaseHelper {
 	{
 		//TO DO check return value
 		Parse.initialize(context, AppId, ClientKey);
+		ParseFacebookUtils.initialize(context.getString(R.string.app_id));
 	}
 	
 	
@@ -229,7 +235,7 @@ public class DatabaseHelper {
 	
 	public static void CheckOutAllFriend( final Context context)
 	{
-		  final ParseUser current_user = ParseUser.getCurrentUser();
+		 final ParseUser current_user = ParseUser.getCurrentUser();
 		 
 		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
 
@@ -289,10 +295,115 @@ public class DatabaseHelper {
 
 	}
 	
-	
-	
-	
-	
-	
-	
+	public static void fbLogin(final Context context)
+	{
+		ParseFacebookUtils.logIn(((LoginActivity) context), new LogInCallback() {
+			
+			@Override
+			public void done(final ParseUser user, ParseException err) {
+			    if (user == null) {
+			      Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+			      ((LoginActivity) context).fbLoginCancelled();
+			    } else if (user.isNew()) {
+			      Log.d("MyApp", "User signed up and logged in through Facebook!");
+			      Request.executeMeRequestAsync(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
+
+			            // callback after Graph API response with user object
+			            @Override
+			            public void onCompleted(final GraphUser userFb, Response response) {
+			              if (userFb != null) {
+			            	  final ParseObject metadata = new ParseObject("Metadata");
+			            	  metadata.put("FirstName", userFb.getFirstName());
+			            	  metadata.put("LastName", userFb.getLastName());
+			            	  metadata.saveInBackground(new SaveCallback() {
+								
+								@Override
+								public void done(ParseException arg0) {
+											
+			            	  ParseUser.getCurrentUser().put("Metadata", metadata);
+			            	  ParseUser.getCurrentUser().put("fbId", userFb.getId());
+			            	  ParseUser.getCurrentUser().saveInBackground(new SaveCallback() {
+								
+								@Override
+								public void done(ParseException arg0) {
+									if(arg0 != null)
+										Log.d("FromParse", arg0.getMessage());
+									else
+									{
+										Log.d("FromParse", "done");
+										Request.executeMyFriendsRequestAsync(ParseFacebookUtils.getSession(), new GraphUserListCallback() {
+											
+											@Override
+											public void onCompleted(List<GraphUser> users, Response response) {
+												//CHECK RESPONSE
+												if(users != null)
+												{
+													//search for users logged with fb
+													List<String> friendsIds = new ArrayList<String>();
+													for(GraphUser user : users)
+													{
+														friendsIds.add((String) user.getId());
+													}
+													ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
+													queryUser.whereContainedIn("fbId", friendsIds);
+													queryUser.findInBackground(new FindCallback<ParseUser>() {
+														public void done(java.util.List<ParseUser> parseUsers, ParseException e) {
+															if(e == null)
+															{
+																if(parseUsers.size() > 0)
+																{
+																	//create UserCircle
+																	List<ParseObject> objects = new ArrayList<ParseObject>();
+																	for(ParseUser usr : parseUsers)
+																	{
+																		ParseObject obj = new ParseObject("UserCircle");
+																		obj.put("UserFriendId", ParseUser.getCurrentUser());
+																		obj.put("UserId", usr);
+																		objects.add(obj);
+																	}
+																	
+																	ParseObject.saveAllInBackground(objects, new SaveCallback() {
+																		
+																		@Override
+																		public void done(ParseException e) {
+																			if(e == null)
+																			{
+																				Log.d("FromParse", "done");
+																				((LoginActivity) context).loginSuccessfull(user);
+																			}
+																			else
+																			{
+																				Log.d("FromParse", e.getMessage());
+																			}
+																		}
+																	});
+																}
+															}
+															else
+															{
+																Log.d("AddFriends", e.getMessage());
+															}
+														};
+													});
+												}
+												
+											}
+										});
+									}
+									
+								}
+							});
+								}
+								});
+			              }
+			            }
+			        });
+			     
+			    } else {
+			      Log.d("MyApp", "User logged in through Facebook!");
+			      ((LoginActivity) context).loginSuccessfull(user);
+			    }
+			  }
+		});
+	}
 }
