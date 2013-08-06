@@ -1,5 +1,6 @@
 package com.example.friendfinder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.SharedPreferences;
@@ -42,10 +43,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         user = ParseUser.getCurrentUser();
-        
-        Log.d("remi", "test");
-        //Business.SaveAMarker("test!!", "Coucou");
-        //Business.GetallMarker(this);
+
         
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
@@ -53,11 +51,11 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                 .findFragmentById(R.id.map)).getMap();
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        Business.FindAllFriend(this);
+        
         bLogOut = (Button) findViewById(R.id.logOut);
         bLogOut.setVisibility(View.INVISIBLE);
         
-         /*customOr = new OrientationEventListener(this) {
+        /* customOr = new OrientationEventListener(this) {
 			
 			@Override
 			public void onOrientationChanged(int orientation) {
@@ -222,28 +220,48 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	
 	public void processFoundFriend(ParseUser usr)
 	{
+		//Apres l'appel de la fonction Business.FindAFriend c'est ici qu'on reçoit l'ami cherché
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("FirstName").toString());
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
 	}
 	
+	public void processFoundAllFriendToPrintMarker(ArrayList<ParseUser> listUser)
+	{
+		//fonction relai entre le main activity et la couche business
+		Business.PrintaAllMarkerFriends(this, listUser);
+	}
+	
 	public void processFoundAMarker(ParseObject marker)
 	{
-		
+		// Après l'appel de la fonction GetaMarker on retrouve ici le marker correspondant au titre demandé
 	}
-	public void processFoundAllMarker(ParseObject marker)
+	public void processFoundAllMarkerCurrent(ParseObject marker)
 	{
 		
 	}
 	
 	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
 	{
+		// Apres l'appel de la fonction Business.GetAllPosition on récupère ici l'ensemble des positions des amis du user connected
+		
+		
 		Log.d(DebugLoginTag, "ListPosition");
 		
 	}
 	
+	public boolean printMarkers(List<ParseObject> markerList)
+	{
+		// TODO Fonction qui apres l'appel de Business.FindAllFriendToPrintMarkers doit imprimer les lists de markers des amis du current user sur la map
+		for (ParseObject parseObject : markerList) {
+			
+			Log.d("remi",parseObject.getObjectId());
+		}
+		return true;
+	}
+	
 	public boolean PlaceAllFriend(List<ParseUser> friendList)
 	{
-		
+		// fonction qui après l'appel de Business.PrintAllFriend print tous les amis du current user sur la map.
 		 for (ParseUser user : friendList) {
 			 
 		
