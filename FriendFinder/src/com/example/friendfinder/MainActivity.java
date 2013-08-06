@@ -62,11 +62,12 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
         bLogOut.setVisibility(View.INVISIBLE);
        
         
-        
+        //Search
         Log.v("call", "MainActivity");        
         Business.searchFirstLastName(this, "lol lol"); 
         
-        
+        //Search
+        handleIntent(getIntent());
         
         bLogOut.setOnClickListener(new OnClickListener() {
 			
@@ -96,8 +97,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
                 .defaultMarker(BitmapDescriptorFactory.HUE_RED)));   
        
  
-        //Search
-        handleIntent(getIntent());
+        
         
 		Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
 			
