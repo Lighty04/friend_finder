@@ -61,7 +61,7 @@ public class DatabaseHelper {
 		 query.findInBackground(new FindCallback<ParseObject>() {
 			 
 			public void done(List<ParseObject> list, ParseException e) {
-				// TODO Auto-generated method stub
+				
 				 if(e == null && list != null)
 				 {
 					 ArrayList<ParseUser> listUser = new ArrayList<ParseUser>();
@@ -186,7 +186,7 @@ public class DatabaseHelper {
 		 query.getFirstInBackground(new GetCallback<ParseObject>() {			 
 			@Override
 			public void done(ParseObject p, ParseException e) {
-				// TODO Auto-generated method stub
+				
 				 if(e == null && p != null)
 				 {
 					 ParseUser usr1 = p.getParseUser("UserFriendId");
@@ -220,6 +220,92 @@ public class DatabaseHelper {
 		
 	}
 	
+	public static void GetAllMarkerCurrent (final Context context)
+	{
+		final ParseUser current_user = ParseUser.getCurrentUser();
+		   Log.d("remi", "data");
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Marker");
+		query.whereEqualTo("UserId", current_user);
+		query.findInBackground(new FindCallback<ParseObject>() {
+		    public void done(List<ParseObject> scoreList, ParseException e) {
+		        if (e == null) {
+		            Log.d("score", "Retrieved " + scoreList.size() + " scores");
+		        } else {
+		            Log.d("score", "Error: " + e.getMessage());
+		        }
+		    }
+		});
+		
+		
+	}
+	
+	public static void GetAllMarkerFromAnUser (final Context context, ParseUser user)
+	{
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Marker");
+		query.whereEqualTo("UserId", user);
+		query.findInBackground(new FindCallback<ParseObject>() {
+		    public void done(List<ParseObject> markerList, ParseException e) {
+		        if (e == null) {
+		        	
+		        	((MainActivity) context).printMarkers(markerList);
+		            
+		        } else {
+		            Log.d("score", "Error: " + e.getMessage());
+		        }
+		    }
+		});
+		
+	}
+	
+	
+	public static void GetAMarker (final Context context, String title)
+	{
+		
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Marker");
+		query.whereEqualTo("title", title);
+		query.getFirstInBackground(new GetCallback<ParseObject>() {
+		  public void done(ParseObject object, ParseException e) {
+		    if (object == null) {
+		      Log.d("remi", "The getFirst request failed.");
+		    } else {
+		      Log.d("remi", "Retrieved the object.");
+		      ((MainActivity) context).processFoundAMarker(object);
+		    }
+		  }
+		});
+		
+	}
+	
+	public static boolean SaveMarker (String info, String title)
+	{
+		try
+		{
+			final ParseUser current_user = ParseUser.getCurrentUser();
+			
+			ParseObject marker = new ParseObject("Marker");
+			
+			marker.put("title", title);
+			marker.put("description", info);
+			marker.put("UserId",current_user);
+			
+			
+			ParseGeoPoint point = (ParseGeoPoint) current_user.get("position");
+			marker.put("position", point);
+			Log.d("remi", "point");
+			//marker.put("position", value)
+			
+			
+			marker.saveInBackground();
+		
+		return true;
+		}catch( Exception e)
+		{
+			return false;
+		}
+		
+	}
+	
+	
 	public static boolean DeleteFriend(ParseUser user, final Context context)
 	{
 		try
@@ -233,7 +319,7 @@ public class DatabaseHelper {
 		}
 	}
 	
-	public static void CheckOutAllFriend( final Context context)
+	public static void PrintOutAllFriend( final Context context)
 	{
 		 final ParseUser current_user = ParseUser.getCurrentUser();
 		 
@@ -260,7 +346,7 @@ public class DatabaseHelper {
 		 query.findInBackground(new FindCallback<ParseObject>() {
 			 
 			public void done(List<ParseObject> list, ParseException e) {
-				// TODO Auto-generated method stub
+				
 				 if(e == null && list != null)
 				 {
 					 ArrayList<ParseUser> listUser = new ArrayList<ParseUser>();
@@ -295,6 +381,7 @@ public class DatabaseHelper {
 
 	}
 	
+
 	public static void fbLogin(final Context context)
 	{
 		ParseFacebookUtils.logIn(((LoginActivity) context), new LogInCallback() {
@@ -405,5 +492,67 @@ public class DatabaseHelper {
 			    }
 			  }
 		});
+	}
+
+	public static void CheckOutAllFriendToPrintMarker( final Context context)
+	{
+		  final ParseUser current_user = ParseUser.getCurrentUser();
+		 
+		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+
+		 
+		 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+		 query1.whereEqualTo("UserFriendId", current_user);
+		 
+		 
+		 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+		 query2.whereEqualTo("UserId", current_user);
+		 
+		 
+		 listQ.add(query1);
+		 listQ.add(query2);
+		 
+		 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
+		 query.include("UserId.Metadata");
+		 query.include("UserFriendId.Metadata");
+		 
+		 
+		 
+		 query.findInBackground(new FindCallback<ParseObject>() {
+			 
+			public void done(List<ParseObject> list, ParseException e) {
+			
+				 if(e == null && list != null)
+				 {
+					 ArrayList<ParseUser> listUser = new ArrayList<ParseUser>();
+					 
+					 for (ParseObject parseObject : list) {
+						
+						 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
+						 ParseUser usr2 = parseObject.getParseUser("UserId");
+						 
+						 Log.d("usr1", usr1.getUsername());
+						 Log.d("usr2", usr2.getUsername());
+						 
+						 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+						 {
+							 listUser.add(usr2);
+						 }
+						 else
+						 {
+							 listUser.add(usr1);
+						 }	 
+					}
+					 
+					 ((MainActivity) context).processFoundAllFriendToPrintMarker(listUser);
+					
+				 }
+				 else
+				 {
+					 ((MainActivity) context).errorFriendCircles(e.getMessage());
+				 }
+			}
+		});
+
 	}
 }

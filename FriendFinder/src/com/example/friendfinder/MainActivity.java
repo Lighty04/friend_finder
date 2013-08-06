@@ -3,10 +3,6 @@ package com.example.friendfinder;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
@@ -29,7 +25,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -59,14 +54,20 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
-        Mmap = ((SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map)).getMap();
+        Mmap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
    
+        bLogOut = (Button) findViewById(R.id.logOut);
+        bLogOut.setVisibility(View.INVISIBLE);
+        
         friendRunnable = new Runnable(){
         	private List<ParseObject> list = null;
         	private ArrayList<ParseUser> listUser = null;
+        
+
+        
+    
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -76,7 +77,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
 				 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
 
-				 
 				 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
 				 query1.whereEqualTo("UserFriendId", current_user);
 				 
@@ -114,7 +114,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 							 listUser.add(usr1);
 						 }	
 					 }
-				} catch (ParseException e1) {
+				} catch (com.parse.ParseException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					Log.d("cancel", e1.getMessage());
@@ -135,8 +135,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         };
         friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
         
-        bLogOut = (Button) findViewById(R.id.logOut);
-        bLogOut.setVisibility(View.INVISIBLE);
         
         bLogOut.setOnClickListener(new OnClickListener() {
 			
@@ -173,59 +171,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
       
        
       
-
-     
- 
-
-            /*          for ( int i = 0; i < myObject.size(); i++) {
-
-                            Object commGet = myObject.get(i).getString("Comment");
-
-                            double geo1Dub = myObject.get(i).getParseGeoPoint("location").getLatitude();
-                            double geo2Dub = myObject.get(i).getParseGeoPoint("location").getLongitude();
-
-                           Location aLocation = new Location("first");
-                           aLocation.setLatitude(geo1Dub);
-                           aLocation.setLongitude(geo2Dub);
-                          ;
-                         
-                                    map.addMarker(new MarkerOptions().position(new LatLng(geo1Dub,geo2Dub)).title((String) commGet)                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
-
-                                                                                           
-
-                           }
-
-              
-            }
-        });      
-        
-        
-        */
-        
-        
-        
-        
-//------------------------------------------------------------------------------------------
-      /*  final Button button = (Button) findViewById(R.id.button1);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                
-            	map.addMarker(new MarkerOptions()
-                .position(new LatLng(10, 10))
-                .title("Marker")
-                .draggable(true)
-                .snippet("Juan")
-                .icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_RED)));	
-            	
-            	
-            }
-        });  */
-        
-        
-   //---------------------------------------------------------------------------------------     
-        
-        
         
         	Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
         		
@@ -244,18 +189,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         	    	 double lat2 = location1.getLatitude();
         	    	 double lon2 = location1.getLongitude();
         	    	 
-        	    	 
-        	        /*    Toast.makeText(MainActivity.this,
-        	                    "Current location " + map.getMyLocation().getLatitude(),
-        	                    Toast.LENGTH_SHORT).show(); */
-        	             	            
-        	    /*	Toast.makeText(
-        	                MainActivity.this,
-        	                "Lat " + location1.getLatitude() + " "
-        	                        + "Long " + location1.getLongitude(),
-        	                Toast.LENGTH_LONG).show();
-        	    	System.out.println("hola"); */
-
+        	    
        float[] results = new float[1]; // 1, 2 or 3 depending on what information
        Location.distanceBetween(lat1, lon1, lat2, lon2, results);
        float distance = results[0];	
@@ -265,18 +199,11 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                Toast.LENGTH_SHORT).show();
         	               
         	            
-            }
-        		
-
-
-        			
-        			
+            }	
         		
         		});	
         	
-        
-        
-        
+   
         
         Mmap.setOnMarkerDragListener(new OnMarkerDragListener() {
 
@@ -290,27 +217,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
             @Override
             public void onMarkerDragEnd(Marker marker) {
-            /*	LatLng position = marker.getPosition(); //
-            	Toast.makeText(
-            	                MainActivity.this,
-            	                "Lat " + position.latitude + " "
-            	                        + "Long " + position.longitude,
-            	                Toast.LENGTH_LONG).show(); */
-            
-            	
-            	
-            	
-            	
-            /*	Location location1 = new Location("");
-            	location1.setLatitude(position.latitude);
-            	location1.setLongitude(position.longitude);
-            	
-            	
-            	Toast.makeText(
-    	                MainActivity.this,
-    	                "Lat " + location1.getLatitude() + " "
-    	                        + "Long " + location1.getLongitude(),
-    	                Toast.LENGTH_LONG).show();*/
+         
             
             
             }
@@ -338,6 +245,8 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+    	
+   
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }   
@@ -370,40 +279,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		
 	}
 
-  /*  public boolean onMarkerClickListener(final Marker marker) {
-
-    	
-    	
- /*      if (marker.equals(map)) {
-            // handle click here
-        //    map.getMyLocation();
-            System.out.println("Clicked"); 
-            double lat = map.getMyLocation().getLatitude();
-            System.out.println("Lat" + lat);
-            Toast.makeText(MainActivity.this,
-                    "Current location " + map.getMyLocation().getLatitude(),
-                    Toast.LENGTH_SHORT).show();
-        }
-    	
-    	LatLng position = marker.getPosition();
-    	Location location1 = new Location("");
-    	location1.setLatitude(position.latitude);
-    	location1.setLongitude(position.longitude);
-    	
-    	
-    	Toast.makeText(
-                MainActivity.this,
-                "Lat " + location1.getLatitude() + " "
-                        + "Long " + location1.getLongitude(),
-                Toast.LENGTH_LONG).show();
-    	System.out.println("hola");
-    	 //
-    
-  //  }
-    	
-        return false;
-    } */
-
+ 
 	public void processFriendCircles(List<ParseObject> objects)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -421,29 +297,48 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	
 	public void processFoundFriend(ParseUser usr)
 	{
+		//Apres l'appel de la fonction Business.FindAFriend c'est ici qu'on recoit l'ami cherche
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("FirstName").toString());
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
 	}
 	
-	//TO DELETE
-	/*public void processFoundAllFriend(List<ParseUser> usrList)
+	public void processFoundAllFriendToPrintMarker(ArrayList<ParseUser> listUser)
 	{
-		//PlaceAllFriend(usrList);
-		Log.d(DebugLoginTag, "ListFriend");
-		for (ParseUser parseUser : usrList) 
-		{
-			Log.d("Friends", parseUser.getUsername());
-		}
-	}*/
+		//fonction relai entre le main activity et la couche business
+		Business.PrintaAllMarkerFriends(this, listUser);
+	}
+	
+	public void processFoundAMarker(ParseObject marker)
+	{
+		// Aprs l'appel de la fonction GetaMarker on retrouve ici le marker correspondant au titre demand
+	}
+	public void processFoundAllMarkerCurrent(ParseObject marker)
+	{
+		
+	}
 	
 	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
 	{
+		// Apres l'appel de la fonction Business.GetAllPosition on rcupre ici l'ensemble des positions des amis du user connected
+		
+		
 		Log.d(DebugLoginTag, "ListPosition");
 		
 	}
 	
+	public boolean printMarkers(List<ParseObject> markerList)
+	{
+		// TODO Fonction qui apres l'appel de Business.FindAllFriendToPrintMarkers doit imprimer les lists de markers des amis du current user sur la map
+		for (ParseObject parseObject : markerList) {
+			
+			Log.d("remi",parseObject.getObjectId());
+		}
+		return true;
+	}
+	
 	public boolean PlaceAllFriend(List<ParseUser> friendList)
 	{
+
 		for(int i = 0; i < friendsMarkers.size(); i++)
 		{
 			friendsMarkers.get(i).remove();
@@ -451,13 +346,14 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		friendsMarkers.clear();
 		if(!cancelUpdate)
 		{
+
 		 for (ParseUser user : friendList) {
 			 
 		
 			//ParseUser user = friendList.get(1);
 			String name = ((ParseObject)user.get("Metadata")).get("FirstName").toString() + " " +
 							((ParseObject)user.get("Metadata")).get("LastName").toString();
-Log.d("test", name);
+			Log.d("test", name);
              ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
              
              double longitude = geoPoint.getLongitude();
