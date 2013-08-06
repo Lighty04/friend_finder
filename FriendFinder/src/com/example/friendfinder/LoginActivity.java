@@ -20,6 +20,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 
 /**
@@ -43,6 +46,7 @@ public class LoginActivity extends Activity {
 	private TextView mLoginStatusMessageView;
 	private Button mNewAccount;
 	private CheckBox keepLogin;
+	private Button fbSignIn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +54,6 @@ public class LoginActivity extends Activity {
 
 		setContentView(R.layout.activity_login);
 		DatabaseHelper.initializeParse(LoginActivity.this);
-			
 		// Set up the login form.
 		mEmailView = (EditText) findViewById(R.id.email);
 
@@ -92,13 +95,32 @@ public class LoginActivity extends Activity {
 				startActivity(i);
 			}
 		});
+		
+		fbSignIn = (Button) findViewById(R.id.fb_sign_in);
+		fbSignIn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(ParseFacebookUtils.getSession() != null)
+				{
+					ParseFacebookUtils.getSession().closeAndClearTokenInformation();
+					Log.d("MyApp", "logout");
+				}
+				if(ParseUser.getCurrentUser() != null)
+					ParseUser.logOut();
+				showProgress(true);
+				Business.fbLogin(LoginActivity.this);
+			}
+		});
 	}
 	
 	@Override
-	protected void onStart() {
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
-		super.onStart();		
+		super.onActivityResult(requestCode, resultCode, data);
+		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
 	}
+
 	
 	@Override
 	protected void onResume() {
@@ -207,6 +229,11 @@ public class LoginActivity extends Activity {
 		//do other UI stuff;
 	}
 	
+	public void fbLoginCancelled()
+	{
+		showProgress(false);
+	}
+	
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
@@ -254,54 +281,4 @@ public class LoginActivity extends Activity {
 			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
 	}
-
-	/**
-	 * Represents an asynchronous login/registration task used to authenticate
-	 * the user.
-	 */
-	//STUDY THIS
-	/*public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-		@Override
-		protected Boolean doInBackground(Void... params) {
-			// TODO: attempt authentication against a network service.
-
-			try {
-				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				return false;
-			}
-
-			/*for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
-				}
-			}*/
-
-			// TODO: register the new account here.
-		/*	return true;
-		}
-
-		@Override
-		protected void onPostExecute(final Boolean success) {
-			mAuthTask = null;
-			showProgress(false);
-
-			if (success) {
-				finish();
-			} else {
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
-			}
-		}
-
-		@Override
-		protected void onCancelled() {
-			mAuthTask = null;
-			showProgress(false);
-		}
-	}*/
 }

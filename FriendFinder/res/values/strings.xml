@@ -6,7 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="log_out">Log out</string>
 
-    
     <!-- PopUpDetailsPerson  -->
     <string name="phone">Phone</string>
     <string name="email">Email</string>
@@ -19,6 +18,6 @@
     <!-- Search -->
     <string name="search_title">Search</string>
     <string name="search_hint">first name, last name</string>
-
+	<string name="app_id">395072980615176</string>
 </resources>
 

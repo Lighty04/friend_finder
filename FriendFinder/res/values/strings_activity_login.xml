@@ -15,5 +15,6 @@
     <string name="error_field_required">This field is required</string>
     <string name="action_new_account">New Account</string>
     <string name="keep_login">Automatically log in</string>
+    <string name="sign_in_with_fb">Facebook sign in</string>
 
 </resources>
