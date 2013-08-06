@@ -229,7 +229,7 @@ public class DatabaseHelper {
 		}
 	}
 	
-	public static void CheckOutAllFriend( final Context context)
+	public static void CheckOutAllFriend( final Context context, final List<LatLng> positionsUsers)
 	{
 		  final ParseUser current_user = ParseUser.getCurrentUser();
 		 
@@ -279,7 +279,7 @@ public class DatabaseHelper {
 						 }	 
 					}
 					 
-					 ((MainActivity) context).PlaceAllFriend(listUser);
+					 ((MainActivity) context).PlaceAllFriend(listUser, positionsUsers);
 					
 				 }
 				 else

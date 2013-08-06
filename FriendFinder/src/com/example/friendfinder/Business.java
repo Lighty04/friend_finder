@@ -1,11 +1,13 @@
 package com.example.friendfinder;
 
 import java.util.HashMap;
+import java.util.List;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -42,9 +44,9 @@ public class Business  {
 		
 	}
 
-	public static void FindAllFriend(Context context) {
+	public static void FindAllFriend(Context context, List<LatLng> positionsUsers) {
 		
-		DatabaseHelper.CheckOutAllFriend(context);	
+		DatabaseHelper.CheckOutAllFriend(context, positionsUsers);	
 		
 	}
 	

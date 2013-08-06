@@ -1,5 +1,6 @@
 package com.example.friendfinder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.SearchManager;
@@ -59,7 +60,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
                 .findFragmentById(R.id.map)).getMap();
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        Business.FindAllFriend(this);
+        Business.FindAllFriend(this, new ArrayList<LatLng>());
         bLogOut = (Button) findViewById(R.id.logOut);
         bLogOut.setVisibility(View.INVISIBLE);
        
@@ -376,8 +377,15 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 	public void processSearchFirstLastName(List<LatLng> positionsUsers) {
 		
 		
-		for(int i=0; i<positionsUsers.size(); i++) {			
-						
+		for(int i=0; i<positionsUsers.size(); i++) {
+			
+			Log.v("call", ""+positionsUsers.get(i).latitude+", "+positionsUsers.get(i).longitude);
+			
+			Mmap.clear();
+			
+			Business.FindAllFriend(this, positionsUsers);
+			
+			
 			Mmap.addMarker(new MarkerOptions()
 			.position(positionsUsers.get(i))
 	    	.title("Kony S")
@@ -408,8 +416,14 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		
 	}
 	
-	public boolean PlaceAllFriend(List<ParseUser> friendList)
+	public boolean PlaceAllFriend(List<ParseUser> friendList, List<LatLng> positionsUsers)
 	{
+		
+		boolean userSearch = false;
+		
+		if(positionsUsers.size() > 0) {
+			userSearch = true;
+		}
 		
 		 for (ParseUser user : friendList) {
 			 
@@ -423,13 +437,16 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
              double longitude = geoPoint.getLongitude();
              double latitude = geoPoint.getLatitude();
              
+             LatLng latlng = new LatLng(latitude, longitude);
+             
             
             /*Location aLocation = new Location("first");
             aLocation.setLatitude(latitude);
-            aLocation.setLongitude(geo2Dub);*/
+            aLocation.setLongitude(geo2Dub);*/  
+
            
             Mmap.addMarker(new MarkerOptions()
-            	.position(new LatLng(longitude,latitude))
+            	.position(new LatLng(latitude, longitude))
             	.title((String) name)
             	.icon(BitmapDescriptorFactory
             	.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
