@@ -112,5 +112,4 @@ public static void PrintAllFriend(Context context) {
 		DatabaseHelper.searchFirstLastName(context, name);
 		Log.v("call", "Business.searchFirstLastName");
 	}
-	
 }

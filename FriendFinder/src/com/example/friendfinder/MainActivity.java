@@ -69,7 +69,6 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
         Mmap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-   
         bLogOut = (Button) findViewById(R.id.logOut);
         bLogOut.setVisibility(View.INVISIBLE);
        
@@ -423,8 +422,15 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 	public void processSearchFirstLastName(List<LatLng> positionsUsers) {
 		
 		
-		for(int i=0; i<positionsUsers.size(); i++) {			
-						
+		for(int i=0; i<positionsUsers.size(); i++) {
+			
+			Log.v("call", ""+positionsUsers.get(i).latitude+", "+positionsUsers.get(i).longitude);
+			
+			Mmap.clear();
+			
+			Business.PrintAllFriend(this);
+			
+			
 			Mmap.addMarker(new MarkerOptions()
 			.position(positionsUsers.get(i))
 	    	.title("Kony S")
@@ -488,7 +494,6 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		friendsMarkers.clear();
 		if(!cancelUpdate)
 		{
-
 		 for (ParseUser user : friendList) {
 			 
 		
@@ -504,6 +509,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
             Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((String) name)
             		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
             friendsMarkers.add(m);
+
 		}
 		}
 		 if(!cancelUpdate)

@@ -322,6 +322,7 @@ public class DatabaseHelper {
 	}
 	
 	public static void PrintOutAllFriend( final Context context)
+	//public static void CheckOutAllFriend( final Context context, final List<LatLng> positionsUsers)
 	{
 		 final ParseUser current_user = ParseUser.getCurrentUser();
 		 
