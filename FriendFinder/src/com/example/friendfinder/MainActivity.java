@@ -21,6 +21,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -86,16 +87,14 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 			}
 		});
         
-        Mmap.setOnMarkerClickListener(this);
-        
+        Mmap.setOnMarkerClickListener(this);        
+ 
         Mmap.addMarker(new MarkerOptions()
-                .position(new LatLng(0, 0))
-                .title("Marker")
-                .draggable(true)
-                .snippet("Juan")
-                .icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_RED)));   
-       
+        		.position(new LatLng(0, 0))
+		    	.title("First Last")
+		    	.icon(BitmapDescriptorFactory
+		    	.defaultMarker(BitmapDescriptorFactory.HUE_RED))); 
+		       
  
         
         
@@ -222,6 +221,10 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 
 	@Override
 	public boolean onMarkerClick(Marker arg0) {
+		
+			String[] nameParts = arg0.getTitle().split(" ");	
+	
+		
 		//if (v.getId() == R.id.btnShowPopup) {
     		LayoutInflater layoutInflater = 
     				(LayoutInflater) getBaseContext()
@@ -235,8 +238,11 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     				LayoutParams.WRAP_CONTENT);    		
     		
     		
-    		//TextView textView = (TextView) popupView.findViewById(R.id.tPersonGivenname);
-    		//textView.setText(this.name);
+    		TextView textViewPersonGivenName = (TextView) popupView.findViewById(R.id.tPersonGivenName);
+    		TextView textViewPersonFamilyName = (TextView) popupView.findViewById(R.id.tPersonFamilyName);
+    		
+    		textViewPersonGivenName.setText(nameParts[0]);
+    		textViewPersonFamilyName.setText(nameParts[1]);
     		
     		
     		//Back Button
@@ -372,14 +378,12 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		
 		
 		for(int i=0; i<positionsUsers.size(); i++) {			
-			
+						
 			Mmap.addMarker(new MarkerOptions()
-	        .position(positionsUsers.get(i))
-	        .title("Marker")
-	        .draggable(true)
-	        .snippet("Kony")
-	        .icon(BitmapDescriptorFactory
-	        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+			.position(positionsUsers.get(i))
+	    	.title("Kony S")
+	    	.icon(BitmapDescriptorFactory
+	    	.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))); 
 			
 			Mmap.moveCamera(CameraUpdateFactory.newLatLngZoom(positionsUsers.get(i), 5));
 		}
@@ -414,7 +418,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 			//ParseUser user = friendList.get(1);
 			String name = ((ParseObject)user.get("Metadata")).get("FirstName").toString() + " " +
 							((ParseObject)user.get("Metadata")).get("LastName").toString();
-Log.d("test", name);
+			Log.d("test", name);
              ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
              
              double longitude = geoPoint.getLongitude();
@@ -425,8 +429,11 @@ Log.d("test", name);
             aLocation.setLatitude(latitude);
             aLocation.setLongitude(geo2Dub);*/
            
-            Mmap.addMarker(new MarkerOptions().position(new LatLng(longitude,latitude)).title((String) name)
-            		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
+            Mmap.addMarker(new MarkerOptions()
+            	.position(new LatLng(longitude,latitude))
+            	.title((String) name)
+            	.icon(BitmapDescriptorFactory
+            	.defaultMarker(BitmapDescriptorFactory.HUE_RED)));     
 
 			
 		}
