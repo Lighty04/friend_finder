@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -49,7 +50,6 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     GoogleMap Mmap;
     private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
-	private Button bLogOut;
 	private ArrayList<Marker> friendsMarkers = new ArrayList<Marker>();
 	private Handler friendHandler = new Handler();
 	private Runnable friendRunnable = null; 
@@ -68,8 +68,6 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
         Mmap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        bLogOut = (Button) findViewById(R.id.logOut);
-        bLogOut.setVisibility(View.INVISIBLE);
        
         //Search
         handleIntent(getIntent());
@@ -145,31 +143,6 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
         };
         friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
         
-        bLogOut.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				cancelUpdate = true;
-					//while(!cancel);
-					Log.d("cancel", "going to cancel");
-					friendHandler.removeCallbacks(friendRunnable);
-					//while(!finishedUpdatingFriendsMap);
-					
-				
-				if(user != null)
-				{
-					if(ParseFacebookUtils.getSession() != null)
-						ParseFacebookUtils.getSession().closeAndClearTokenInformation();
-					ParseUser.logOut();
-					Log.d("logout", "going to log out");
-					finish();
-				}
-				else
-				{
-					Log.d("logout", "cant log out");
-				}
-			}
-		});
         
         Mmap.setOnMarkerClickListener(this);        
  
@@ -274,6 +247,48 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 	            searchManager.getSearchableInfo(getComponentName()));
 	    return true;
 	}
+	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	        case R.id.logOut:
+	        	logoutFunction();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	
+	
+	
+	private void logoutFunction() {
+
+			cancelUpdate = true;
+				//while(!cancel);
+				Log.d("cancel", "going to cancel");
+				friendHandler.removeCallbacks(friendRunnable);
+				//while(!finishedUpdatingFriendsMap);
+				
+			
+			if(user != null)
+			{
+				if(ParseFacebookUtils.getSession() != null)
+					ParseFacebookUtils.getSession().closeAndClearTokenInformation();
+				ParseUser.logOut();
+				Log.d("logout", "going to log out");
+				finish();
+			}
+			else
+			{
+				Log.d("logout", "cant log out");
+			}
+		
+	}
+	
+	
 	
 
     @Override //Search
@@ -515,14 +530,12 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		 {
 			 friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
 		 }
-		 bLogOut.setVisibility(View.VISIBLE);
 		 return true;
 	}
 	
 	public void errorFriendCircles(String errorMessage)
 	{
 		Log.d(DebugLoginTag, errorMessage);
-		bLogOut.setVisibility(View.VISIBLE);
 		if(!cancelUpdate)
 		{
 			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
