@@ -54,6 +54,8 @@ public class MainActivity extends FragmentActivity implements
 		OnMarkerClickListener, LocationListener {
 
 	private final long friendsUpdateDelay = 60 * 1000;
+	private final long friendsMarkersUpdateDelay = 120 * 1000;
+	private final long myMarkersUpdateDelay = 120 * 1000;
 	GoogleMap Mmap;
 	private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
@@ -676,7 +678,7 @@ public class MainActivity extends FragmentActivity implements
 				it.remove();
 			}
 		}
-		friendsPOIHandler.postDelayed(friendsPOIRunnable, friendsUpdateDelay);
+		friendsPOIHandler.postDelayed(friendsPOIRunnable, friendsMarkersUpdateDelay);
 		}
 	}
 
@@ -742,7 +744,7 @@ public class MainActivity extends FragmentActivity implements
 		bLogOut.setVisibility(View.VISIBLE);
 		if (!cancelUpdate) {
 			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
-			friendsPOIHandler.postDelayed(friendsPOIRunnable, friendsUpdateDelay);
+			friendsPOIHandler.postDelayed(friendsPOIRunnable, friendsMarkersUpdateDelay);
 		}
 	}
 
