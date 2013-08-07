@@ -8,11 +8,11 @@
 	<EditText
           android:id="@+id/tPOISetTitle"
           android:layout_width="fill_parent"
-          android:layout_height="25dp"
+          android:layout_height="50dp"
           android:textSize="21sp"
           android:hint="@string/poi_title"
-          android:layout_marginBottom="3dp"
- 			      />
+          android:layout_marginBottom="3dp"/>
+	
       <Button
           android:id="@+id/btnSave"
           android:layout_width="fill_parent"

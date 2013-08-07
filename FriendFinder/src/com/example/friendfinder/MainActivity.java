@@ -518,7 +518,7 @@ public class MainActivity extends FragmentActivity implements
     					.findViewById(R.id.tPOITitle);
     			
     			poiTitle.setText(arg0.getTitle());
-    			Button btnBack = (Button) popupView.findViewById(R.id.btnFacebookChat);
+    			ImageButton btnBack = (ImageButton) popupView.findViewById(R.id.btnBack);
     			btnBack.setOnClickListener(new Button.OnClickListener() {
     				public void onClick(View v) {
     					popupWindow.dismiss();
