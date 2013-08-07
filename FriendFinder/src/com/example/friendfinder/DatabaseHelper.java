@@ -236,9 +236,7 @@ public class DatabaseHelper {
 		            Log.d("score", "Error: " + e.getMessage());
 		        }
 		    }
-		});
-		
-		
+		});				
 	}
 	
 	public static void GetAllMarkerFromAnUser (final Context context, ParseUser user)
@@ -386,23 +384,29 @@ public class DatabaseHelper {
 	
 	public static void searchFirstLastName(final Context context, String name) {
 		
+		name = name.trim();
 		String[] nameParts = name.split(" ");		
-		
 		
 		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
 		 
-
-		 
 		 ParseQuery<ParseObject> queryMetadata1 = ParseQuery.getQuery("Metadata");
-		 queryMetadata1.whereEqualTo("FirstName", nameParts[0]);
-		 queryMetadata1.whereEqualTo("LastName", nameParts[1]);
-		 
-		 ParseQuery<ParseObject> queryMetadata2 = ParseQuery.getQuery("Metadata");
-		 queryMetadata2.whereEqualTo("FirstName", nameParts[1]);
-		 queryMetadata2.whereEqualTo("LastName", nameParts[0]);		 
+		 if(nameParts.length == 2)
+		 {
+			 queryMetadata1.whereContains("FirstName", nameParts[0]);
+			 queryMetadata1.whereContains("LastName", nameParts[1]);
+			 
+			 ParseQuery<ParseObject> queryMetadata2 = ParseQuery.getQuery("Metadata");
+			 queryMetadata2.whereContains("FirstName", nameParts[1]);
+			 queryMetadata2.whereContains("LastName", nameParts[0]);	
+			 listQ.add(queryMetadata1);
+			 listQ.add(queryMetadata2);
+		 }
+		 else
+		 {
+			 
+		 }
 		 			 
-		 listQ.add(queryMetadata1);
-		 listQ.add(queryMetadata2);
+		 
 		 
 		 ParseQuery<ParseObject> queryMetadata = ParseQuery.or(listQ);
 		 
@@ -414,13 +418,13 @@ public class DatabaseHelper {
  		queryUser.findInBackground(new FindCallback<ParseUser>() {
             public void done(List<ParseUser> listUser, ParseException e) {
                 if (e == null) {
-                	ArrayList<LatLng> listPosition = new ArrayList<LatLng>();
+                	/*ArrayList<LatLng> listPosition = new ArrayList<LatLng>();
 					 for (ParseObject parseObject : listUser) {
 						 Log.v("call", String.valueOf(parseObject.getParseGeoPoint("position").getLongitude()));
 						 
 						 listPosition.add(new LatLng(parseObject.getParseGeoPoint("position").getLatitude(), parseObject.getParseGeoPoint("position").getLongitude()));
-					}
-					 ((MainActivity) context).processSearchFirstLastName(listPosition);
+					}*/
+					 ((MainActivity) context).processSearchFirstLastName(listUser);
    				 }
    				 else
    				 {
@@ -565,7 +569,6 @@ public class DatabaseHelper {
 		 query.include("UserFriendId.Metadata");
 		 
 		 
-		 
 		 query.findInBackground(new FindCallback<ParseObject>() {
 			 
 			public void done(List<ParseObject> list, ParseException e) {
@@ -591,8 +594,12 @@ public class DatabaseHelper {
 							 listUser.add(usr1);
 						 }	 
 					}
-					 
-					 ((MainActivity) context).processFoundAllFriendToPrintMarker(listUser);
+					 if(list.size() > 0)
+					 {
+						 ParseQuery<ParseObject> queryMarker = ParseQuery.getQuery("Marker");
+						 queryMarker.whereContainedIn("UserId", list);						 
+						 //((MainActivity) context).processFoundAllFriendToPrintMarker(listUser);
+					 }
 					
 				 }
 				 else

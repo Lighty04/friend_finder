@@ -1,13 +1,21 @@
 package com.example.friendfinder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import android.app.ActionBar;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,7 +27,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -45,37 +52,73 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-public class MainActivity extends FragmentActivity implements OnMarkerClickListener {
+public class MainActivity extends FragmentActivity implements
+		OnMarkerClickListener, LocationListener {
 
-	private final long friendsUpdateDelay = 10000;
-    GoogleMap Mmap;
-    private ParseUser user = null;
+	private final long friendsUpdateDelay = 60 * 1000;
+	GoogleMap Mmap;
+	private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
-	private ArrayList<Marker> friendsMarkers = new ArrayList<Marker>();
+	private Button bLogOut;
+	private HashMap<String, Marker> friendMarkersHashmap = new HashMap<String, Marker>();
+	private HashMap<String, Marker> friendsMarkersPOI = new HashMap<String, Marker>();
 	private Handler friendHandler = new Handler();
-	private Runnable friendRunnable = null; 
+	private Runnable friendRunnable = null;
+	private Handler friendsPOIHandler = new Handler();
+	private Runnable friendsPOIRunnable = null;
 	private boolean cancelUpdate = false;
-	//private OrientationEventListener customOr;
-	
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-    	
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        cancelUpdate = false;
-        user = ParseUser.getCurrentUser();
 
-        GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
-        Mmap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-        Mmap.setMyLocationEnabled(true);
-        Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-       
-        //Search
-        handleIntent(getIntent());
-        
-        friendRunnable = new Runnable(){
-        	private List<ParseObject> list = null;
-        	private ArrayList<ParseUser> listUser = null;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
+		// Added by Dany to configure the Action Bar and the search
+		// functionnality in it
+		configureActionBar();
+
+		cancelUpdate = false;
+		user = ParseUser.getCurrentUser();
+
+		Log.d("positionService", "here4");
+		Intent intentLaunchService = new Intent(getApplicationContext(),
+				PositionService.class);
+		Log.d("positionService", "here5");
+		startService(intentLaunchService);
+
+		GooglePlayServicesUtil
+				.isGooglePlayServicesAvailable(getApplicationContext());
+		Mmap = ((SupportMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.map)).getMap();
+		Mmap.setMyLocationEnabled(true);
+		Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		bLogOut = (Button) findViewById(R.id.logOut);
+		// bLogOut.setVisibility(View.INVISIBLE);
+
+		LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+		// Creating a criteria object to retrieve provider??
+		Criteria criteria = new Criteria();
+
+		// Getting the name of the best provider???
+		String provider = locationManager.getBestProvider(criteria, true);
+
+		// Getting Current Location From GPS
+		Location location = locationManager.getLastKnownLocation(provider);
+
+		if (location != null) {
+			onLocationChanged(location);
+		}
+
+		locationManager.requestLocationUpdates(provider, 20000, 0, this);
+
+		// Search
+		handleIntent(getIntent());
+
+		friendRunnable = new Runnable() {
+			private List<ParseObject> list = null;
+			private ArrayList<ParseUser> listUser = null;
 
 			@Override
 			public void run() {
@@ -84,28 +127,27 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 				// TODO Auto-generated method stub
 				final ParseUser current_user = ParseUser.getCurrentUser();
 
-				 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+				List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
 
-				 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
-				 query1.whereEqualTo("UserFriendId", current_user);
-				 
-				 
-				 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
-				 query2.whereEqualTo("UserId", current_user);
-				 
-				 
-				 listQ.add(query1);
-				 listQ.add(query2);
-				 
-				 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
-				 query.include("UserId.Metadata");
-				 query.include("UserFriendId.Metadata");
+				ParseQuery<ParseObject> query1 = ParseQuery
+						.getQuery("UserCircle");
+				query1.whereEqualTo("UserFriendId", current_user);
 
-				 
-				 try {
-					 Log.d("async task", "here1");
+				ParseQuery<ParseObject> query2 = ParseQuery
+						.getQuery("UserCircle");
+				query2.whereEqualTo("UserId", current_user);
+
+				listQ.add(query1);
+				listQ.add(query2);
+
+				ParseQuery<ParseObject> query = ParseQuery.or(listQ);
+				query.include("UserId.Metadata");
+				query.include("UserFriendId.Metadata");
+
+				try {
+					Log.d("async task", "here1");
 					list = query.find();
-					listUser = new ArrayList<ParseUser>();			
+					listUser = new ArrayList<ParseUser>();		
 					 for (ParseObject parseObject : list) {
 						
 						 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
@@ -114,7 +156,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 						 Log.d("usr1", usr1.getUsername());
 						 Log.d("usr2", usr2.getUsername());
 						 
-						 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+						 if(usr1.get("username").toString().equals(user.getUsername().toString()))
 						 {
 							 listUser.add(usr2);
 						 }
@@ -123,10 +165,10 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 							 listUser.add(usr1);
 						 }	
 					 }
-				} catch (com.parse.ParseException e1) {
+				} catch (com.parse.ParseException e) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					Log.d("cancel", e1.getMessage());
+					e.printStackTrace();
+					Log.d("cancel", e.getMessage());
 				}
 				 finally
 				 {
@@ -136,14 +178,105 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 							PlaceAllFriend(listUser);
 						}
 					});
-					 
-				 }
-				
+
+				}
+
 			}
         	
         };
-        friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
         
+        friendsPOIRunnable = new Runnable() {
+        	private List<ParseObject> list = null;
+        	private ArrayList<ParseUser> listUser = null;
+        	private List<ParseObject> listMarkers = null;
+        	private HashMap<String, ParseObject> listMarkersPOI = null;
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				  final ParseUser current_user = ParseUser.getCurrentUser();
+					 
+					 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+
+					 
+					 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+					 query1.whereEqualTo("UserFriendId", current_user);
+					 
+					 
+					 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+					 query2.whereEqualTo("UserId", current_user);
+					 
+					 
+					 listQ.add(query1);
+					 listQ.add(query2);
+					 
+					 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
+					 query.include("UserId.Metadata");
+					 query.include("UserFriendId.Metadata");
+					 
+					 try
+					 {
+						 list = query.find();
+						 listUser = new ArrayList<ParseUser>();
+						 
+						 for (ParseObject parseObject : list) {
+							
+							 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
+							 ParseUser usr2 = parseObject.getParseUser("UserId");
+							 
+							 Log.d("usr1", usr1.getUsername());
+							 Log.d("usr2", usr2.getUsername());
+							 
+							 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+							 {
+								 listUser.add(usr2);
+							 }
+							 else
+							 {
+								 listUser.add(usr1);
+							 }	 
+						}
+						 if(list.size() > 0)
+						 {
+							 ParseQuery<ParseObject> queryMarker = ParseQuery.getQuery("Marker");
+							 queryMarker.whereContainedIn("UserId", listUser);
+							 try
+							 {
+								 listMarkers = queryMarker.find();
+								 listMarkersPOI = new HashMap<String, ParseObject>();
+								 for(ParseObject marker: listMarkers)
+								 {
+									 listMarkersPOI.put(marker.getObjectId(), marker);
+								 }
+								 
+							 }
+							 catch(com.parse.ParseException e)
+							 {
+								 Log.d("cancel", e.getMessage()); 
+							 }
+							 finally
+							 {
+								 runOnUiThread(new Runnable() {
+										public void run() {
+											Log.d("intent", "here4");
+											processFoundAllFriendToPrintMarker(listMarkersPOI);
+										}
+									});
+							 }
+							 
+							 //((MainActivity) context).processFoundAllFriendToPrintMarker(listUser);
+						 }
+					 }
+					 catch(com.parse.ParseException e)
+					{
+						 Log.d("cancel", e.getMessage());	 
+					}
+					 finally
+					 {
+						 
+					 }
+				
+			}
+		};
         
         Mmap.setOnMarkerClickListener(this);        
  
@@ -297,31 +430,10 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 			else
 			{
 				Log.d("logout", "cant log out");
-			}
-		
-	}
-	
-	
-	
-
-    @Override //Search
-    protected void onNewIntent(Intent intent) {
-    	
-    	handleIntent(intent);
-    }
+			}		
+	}	
     
-    //Search
-    private void handleIntent(Intent intent) {
-    	
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-                       
-            Log.v("call", "Query: "+query);
-            
-            //Search     
-            Business.searchFirstLastName(this, query); 
-        }
-    }
+
 
 	@Override
 	public boolean onMarkerClick(final Marker arg0) {
@@ -408,37 +520,36 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 	
     		return true;
 	}
-	
-	/*
-	@Override
-	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-		
-	}
-    
 
 	@Override
-	public void onLocationChanged(Location location) {
+	protected void onPause() {
 		// TODO Auto-generated method stub
-	}
-	
-
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
-		
+		super.onPause();
+		friendHandler.removeCallbacks(friendRunnable);
 	}
 
 	@Override
-	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-		
-	}*/
+	// Search
+	protected void onNewIntent(Intent intent) {
+		setIntent(intent); //used to be on the same activity
+		handleIntent(intent);
+	}
 
- 
-	public void processFriendCircles(List<ParseObject> objects)
-	{
+	// Search
+	private void handleIntent(Intent intent) {
+
+		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+			String query = intent.getStringExtra(SearchManager.QUERY);
+
+			Log.v("call", "Query: " + query);
+
+			// Search
+			Business.searchFirstLastName(this, query);
+		}
+	}
+
+
+	public void processFriendCircles(List<ParseObject> objects) {
 		StringBuilder sb = new StringBuilder();
     	for (int i=0; i<objects.size(); i++) {
     		//sb.append(objects.get(i).get("tamere"));
@@ -451,145 +562,243 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     	Toast.makeText(MainActivity.this,
         		sb.toString(), Toast.LENGTH_LONG).show();
 	}
-	
-	public void processFoundFriend(ParseUser usr)
-	{
-		//Apres l'appel de la fonction Business.FindAFriend c'est ici qu'on recoit l'ami cherche
-		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("FirstName").toString());
-		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
+
+	public void processFoundFriend(ParseUser usr) {
+		// Apres l'appel de la fonction Business.FindAFriend c'est ici qu'on
+		// recoit l'ami cherche
+		Log.d(DebugLoginTag,
+				((ParseObject) usr.get("Metadata")).get("FirstName").toString());
+		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata"))
+				.get("LastName").toString());
 	}
-	
-	public void processSearchFirstLastName(List<LatLng> positionsUsers) {
+
+	public void processSearchFirstLastName(List<ParseUser> usrList) {
+
+		for (ParseUser user : usrList) {
+			ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
+
+			double longitude = geoPoint.getLongitude();
+			double latitude = geoPoint.getLatitude();
+			if (!friendMarkersHashmap.containsKey(user.getObjectId())) {
+				String name = ((ParseObject) user.get("Metadata")).get(
+						"FirstName").toString()
+						+ " "
+						+ ((ParseObject) user.get("Metadata")).get("LastName")
+								.toString();
+
+				Marker m = Mmap
+						.addMarker(new MarkerOptions()
+								.position(new LatLng(latitude, longitude))
+								.title((String) name)
+								.icon(BitmapDescriptorFactory
+										.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+				// friendsMarkers.add(m);
+				friendMarkersHashmap.put(user.getObjectId(), m);
+			} else {
+				friendMarkersHashmap
+						.get(user.getObjectId())
+						.setIcon(
+								BitmapDescriptorFactory
+										.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+			}
+		}
+
+		Log.v("call", "MainActivity.processSearchFirstLastName");
+
+	}
+
+	// TO DELETE
+	/*
+	 * public void processFoundAllFriend(List<ParseUser> usrList) { //fonction
+	 * relai entre le main activity et la couche business
+	 * Business.PrintaAllMarkerFriends(this, listUser); }
+	 */
+
+	public void processFoundAMarker(ParseObject marker) {
+		// Aprs l'appel de la fonction GetaMarker on retrouve ici le marker
+		// correspondant au titre demand
+	}
+
+	public void processFoundAllMarkerCurrent(ParseObject marker) {
+
+	}
+
+	public void processFoundAllFriendToPrintMarker(HashMap<String, ParseObject> markers)
+	{
+		for(Map.Entry<String, ParseObject> entry : markers.entrySet())
+		{
+			ParseGeoPoint geoPoint = (ParseGeoPoint) entry.getValue().get("position");
+            
+            double longitude = geoPoint.getLongitude();
+            double latitude = geoPoint.getLatitude();
+			if(friendsMarkersPOI.containsKey(entry.getKey()))
+			{
+				friendsMarkersPOI.get(entry.getKey()).setPosition(new LatLng(latitude, longitude));
+			}
+			else
+			{
+				String name = ((ParseObject)entry.getValue().get("title")).toString();
 		
-		
-		for(int i=0; i<positionsUsers.size(); i++) {
-			
-			Log.v("call", ""+positionsUsers.get(i).latitude+", "+positionsUsers.get(i).longitude);
-			
-			Mmap.clear();
-			
-			Business.PrintAllFriend(this);
-			
-			
-			Mmap.addMarker(new MarkerOptions()
-			.position(positionsUsers.get(i))
-	    	.title("Kony S")
-	    	.icon(BitmapDescriptorFactory
-	    	.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))); 
-			
-			Mmap.moveCamera(CameraUpdateFactory.newLatLngZoom(positionsUsers.get(i), 5));
+				Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((String) name)
+        		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+        
+				friendsMarkersPOI.put(entry.getKey(), m);
+			}
 		}
 		
-		Log.v("call", "MainActivity.processSearchFirstLastName");
-		
+		Iterator<Entry<String, Marker>> it = friendsMarkersPOI.entrySet().iterator();
+		while(it.hasNext())
+		{
+			Map.Entry<String, Marker> pairs = (Map.Entry<String, Marker>)it.next();
+			if(!markers.containsKey(pairs.getKey()))
+			{
+				pairs.getValue().remove();
+				it.remove();
+			}
+		}
 	}
-	
-	//TO DELETE
-	/*public void processFoundAllFriend(List<ParseUser> usrList)
-	{
-		//fonction relai entre le main activity et la couche business
-		Business.PrintaAllMarkerFriends(this, listUser);
-	}*/
-	
-	public void processFoundAMarker(ParseObject marker)
-	{
-		// Aprs l'appel de la fonction GetaMarker on retrouve ici le marker correspondant au titre demand
-	}
-	public void processFoundAllMarkerCurrent(ParseObject marker)
-	{
-		
-	}
-	
-	public void processFoundAllFriendToPrintMarker(ArrayList<ParseUser> listUser)
-	{
-		
-	}
-	
-	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
-	{
-		// Apres l'appel de la fonction Business.GetAllPosition on rcupre ici l'ensemble des positions des amis du user connected
-		
-		
+
+	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList) {
+		// Apres l'appel de la fonction Business.GetAllPosition on rcupre ici
+		// l'ensemble des positions des amis du user connected
+
 		Log.d(DebugLoginTag, "ListPosition");
-		
+
 	}
-	
-	public boolean printMarkers(List<ParseObject> markerList)
-	{
-		// TODO Fonction qui apres l'appel de Business.FindAllFriendToPrintMarkers doit imprimer les lists de markers des amis du current user sur la map
+
+	public boolean printMarkers(List<ParseObject> markerList) {
+		// TODO Fonction qui apres l'appel de
+		// Business.FindAllFriendToPrintMarkers doit imprimer les lists de
+		// markers des amis du current user sur la map
 		for (ParseObject parseObject : markerList) {
-			
-			Log.d("remi",parseObject.getObjectId());
+
+			Log.d("remi", parseObject.getObjectId());
 		}
 		return true;
 	}
-	
-	public boolean PlaceAllFriend(List<ParseUser> friendList)
-	{
 
-		for(int i = 0; i < friendsMarkers.size(); i++)
-		{
-			friendsMarkers.get(i).remove();
-		}
-		friendsMarkers.clear();
-		if(!cancelUpdate)
-		{
-		 for (ParseUser user : friendList) {
-			 
-		
-			//ParseUser user = friendList.get(1);
-			String name = ((ParseObject)user.get("Metadata")).get("FirstName").toString() + " " +
-							((ParseObject)user.get("Metadata")).get("LastName").toString();
-			Log.d("test", name);
-             ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
-             
-             double longitude = geoPoint.getLongitude();
-             double latitude = geoPoint.getLatitude();
-             
-            Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((String) name)
-            		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            friendsMarkers.add(m);
+	public boolean PlaceAllFriend(List<ParseUser> friendList) {
 
+		/*
+		 * for(int i = 0; i < friendsMarkers.size(); i++) {
+		 * friendsMarkers.get(i).remove(); } friendsMarkers.clear();
+		 */
+		if (!cancelUpdate) {
+			for (ParseUser user : friendList) {
+				ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
+
+				double longitude = geoPoint.getLongitude();
+				double latitude = geoPoint.getLatitude();
+				if (!friendMarkersHashmap.containsKey(user.getObjectId())) {
+					String name = ((ParseObject) user.get("Metadata")).get(
+							"FirstName").toString()
+							+ " "
+							+ ((ParseObject) user.get("Metadata")).get(
+									"LastName").toString();
+					Log.d("test", name);
+
+					Marker m = Mmap
+							.addMarker(new MarkerOptions()
+									.position(new LatLng(latitude, longitude))
+									.title((String) name)
+									.icon(BitmapDescriptorFactory
+											.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+					// friendsMarkers.add(m);
+					friendMarkersHashmap.put(user.getObjectId(), m);
+				} else {
+					friendMarkersHashmap.get(user.getObjectId()).setPosition(
+							new LatLng(latitude, longitude));
+					Log.d("test", "nada");
+				}
+
+			}
 		}
+		if (!cancelUpdate) {
+			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
 		}
-		 if(!cancelUpdate)
-		 {
-			 friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
-		 }
-		 return true;
+
+		return true;
 	}
-	
-	public void errorFriendCircles(String errorMessage)
-	{
+
+	public void errorFriendCircles(String errorMessage) {
 		Log.d(DebugLoginTag, errorMessage);
 		if(!cancelUpdate)
 		{
 			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
 		}
 	}
-	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
-		//we log the fact that we're going to rotate the screen so that in destroy will not log out the user
+		// we log the fact that we're going to rotate the screen so that in
+		// destroy will not log out the user
 		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
 		editor.commit();
-		
+
 	}
-	
+
 	@Override
 	protected void onDestroy() {
+		friendHandler.removeCallbacks(friendRunnable);
 		// TODO Auto-generated method stub
 		super.onDestroy();
+
 		Log.d("logout", "onDestroy called, lets log out");
-		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE); //0 is for mode private
+		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE); // 0
+																					// is
+																					// for
+																					// mode
+																					// private
 		boolean goingToRotate = pref.getBoolean("goingToRotate", true);
-		Log.d("onDestroy", "going to rotate is " + String.valueOf(goingToRotate));
-		//if we are not going to rotate(for example we're going to kill the app) then we can try to logout;
-		if(!goingToRotate)
+		Log.d("onDestroy",
+				"going to rotate is " + String.valueOf(goingToRotate));
+		// if we are not going to rotate(for example we're going to kill the
+		// app) then we can try to logout;
+		if (!goingToRotate)
 			Business.CheckLogout(this);
 	}
-}
 
+	@Override
+	public void onLocationChanged(Location location) {
+		double mLatitude = location.getLatitude();
+		double mLongitude = location.getLongitude();
+		LatLng pont = new LatLng(mLatitude, mLongitude);
+
+		Mmap.moveCamera(CameraUpdateFactory.newLatLng(pont));
+		Mmap.animateCamera(CameraUpdateFactory.zoomTo(10));
+
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+
+	}
+
+	// Dany for the search
+	ActionBar actionBar;
+	SearchView searchView;
+
+	public void configureActionBar() {
+		actionBar = getActionBar();
+	}
+
+	public void openSearch() {
+		
+	}
+}
