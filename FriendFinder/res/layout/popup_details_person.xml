@@ -72,4 +72,10 @@
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
           android:text="@string/facebook_chat" />
+      <Button
+          android:id="@+id/btnGetDirections"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/get_directions" />
+      
 </LinearLayout>

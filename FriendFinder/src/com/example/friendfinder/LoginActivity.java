@@ -202,6 +202,10 @@ public class LoginActivity extends Activity {
 	{
 		Log.d(DebugLoginTag, "Login successfull");
 		showProgress(false);
+		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
+		SharedPreferences.Editor editor = pref.edit();			
+		editor.putString("lastUserId", (String) user.getObjectId());
+		editor.commit();
 		startMainActivity();
 		//do other UI stuff;
 	}

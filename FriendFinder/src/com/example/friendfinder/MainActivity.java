@@ -1,13 +1,17 @@
 package com.example.friendfinder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,18 +47,18 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-public class MainActivity extends FragmentActivity implements OnMarkerClickListener {
+public class MainActivity extends FragmentActivity implements OnMarkerClickListener, LocationListener {
 
-	private final long friendsUpdateDelay = 10000;
+	private final long friendsUpdateDelay = 60 * 1000;
     GoogleMap Mmap;
     private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
 	private Button bLogOut;
 	private ArrayList<Marker> friendsMarkers = new ArrayList<Marker>();
+	private HashMap<String, Marker> friendMarkersHashmap = new HashMap<String, Marker>();
 	private Handler friendHandler = new Handler();
 	private Runnable friendRunnable = null; 
 	private boolean cancelUpdate = false;
-	//private OrientationEventListener customOr;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +67,11 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
         setContentView(R.layout.activity_main);
         cancelUpdate = false;
         user = ParseUser.getCurrentUser();
+        
+        Log.d("positionService", "here4");
+		Intent intentLaunchService = new Intent(getApplicationContext(), PositionService.class);
+		Log.d("positionService", "here5");
+		startService(intentLaunchService);
 
         GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getApplicationContext());
@@ -70,8 +79,25 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         bLogOut = (Button) findViewById(R.id.logOut);
-        bLogOut.setVisibility(View.INVISIBLE);
+        //bLogOut.setVisibility(View.INVISIBLE);
        
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        // Creating a criteria object to retrieve provider??
+        Criteria criteria = new Criteria();
+
+        // Getting the name of the best provider???
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        // Getting Current Location From GPS
+        Location location = locationManager.getLastKnownLocation(provider);
+        
+        if(location!=null){
+            onLocationChanged(location);
+        }
+
+        locationManager.requestLocationUpdates(provider, 20000, 0, this);
+        
         //Search
         handleIntent(getIntent());
         
@@ -107,7 +133,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 				 try {
 					 Log.d("async task", "here1");
 					list = query.find();
-					listUser = new ArrayList<ParseUser>();			
+					listUser = new ArrayList<ParseUser>();		
 					 for (ParseObject parseObject : list) {
 						
 						 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
@@ -116,7 +142,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 						 Log.d("usr1", usr1.getUsername());
 						 Log.d("usr2", usr2.getUsername());
 						 
-						 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+						 if(usr1.get("username").toString().equals(user.getUsername().toString()))
 						 {
 							 listUser.add(usr2);
 						 }
@@ -144,7 +170,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 			}
         	
         };
-        friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
+        
         
         bLogOut.setOnClickListener(new OnClickListener() {
 			
@@ -261,6 +287,20 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 
     }
     
+    @Override
+    protected void onResume() {
+    	// TODO Auto-generated method stub
+    	super.onResume();
+    	friendHandler.post(friendRunnable);
+    }
+    
+    @Override
+    protected void onPause() {
+    	// TODO Auto-generated method stub
+    	super.onPause();
+    	friendHandler.removeCallbacks(friendRunnable);
+    }
+    
 	@Override //Search
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -279,7 +319,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 
     @Override //Search
     protected void onNewIntent(Intent intent) {
-    	
+    	setIntent(intent);
     	handleIntent(intent);
     }
     
@@ -419,25 +459,27 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata")).get("LastName").toString());
 	}
 	
-	public void processSearchFirstLastName(List<LatLng> positionsUsers) {
+	public void processSearchFirstLastName(List<ParseUser> usrList) {
 		
-		
-		for(int i=0; i<positionsUsers.size(); i++) {
+		 for (ParseUser user : usrList) {
+             ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
+             
+             double longitude = geoPoint.getLongitude();
+             double latitude = geoPoint.getLatitude();
+			 if(!friendMarkersHashmap.containsKey(user.getObjectId()))
+			 {
+			String name = ((ParseObject)user.get("Metadata")).get("FirstName").toString() + " " +
+							((ParseObject)user.get("Metadata")).get("LastName").toString();
 			
-			Log.v("call", ""+positionsUsers.get(i).latitude+", "+positionsUsers.get(i).longitude);
-			
-			Mmap.clear();
-			
-			Business.PrintAllFriend(this);
-			
-			
-			Mmap.addMarker(new MarkerOptions()
-			.position(positionsUsers.get(i))
-	    	.title("Kony S")
-	    	.icon(BitmapDescriptorFactory
-	    	.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))); 
-			
-			Mmap.moveCamera(CameraUpdateFactory.newLatLngZoom(positionsUsers.get(i), 5));
+            Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((String) name)
+            		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            //friendsMarkers.add(m);
+            friendMarkersHashmap.put(user.getObjectId(), m);
+			 }
+			 else
+			 {
+				friendMarkersHashmap.get(user.getObjectId()).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+			 }
 		}
 		
 		Log.v("call", "MainActivity.processSearchFirstLastName");
@@ -487,28 +529,36 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 	public boolean PlaceAllFriend(List<ParseUser> friendList)
 	{
 
-		for(int i = 0; i < friendsMarkers.size(); i++)
+		/*for(int i = 0; i < friendsMarkers.size(); i++)
 		{
 			friendsMarkers.get(i).remove();
 		}
-		friendsMarkers.clear();
+		friendsMarkers.clear();*/
 		if(!cancelUpdate)
 		{
 		 for (ParseUser user : friendList) {
-			 
-		
-			//ParseUser user = friendList.get(1);
-			String name = ((ParseObject)user.get("Metadata")).get("FirstName").toString() + " " +
-							((ParseObject)user.get("Metadata")).get("LastName").toString();
-			Log.d("test", name);
              ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
              
              double longitude = geoPoint.getLongitude();
              double latitude = geoPoint.getLatitude();
+			 if(!friendMarkersHashmap.containsKey(user.getObjectId()))
+			 {
+			String name = ((ParseObject)user.get("Metadata")).get("FirstName").toString() + " " +
+							((ParseObject)user.get("Metadata")).get("LastName").toString();
+			Log.d("test", name);
+
              
+            
             Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((String) name)
             		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            friendsMarkers.add(m);
+            //friendsMarkers.add(m);
+            friendMarkersHashmap.put(user.getObjectId(), m);
+			 }
+			 else
+			 {
+				friendMarkersHashmap.get(user.getObjectId()).setPosition(new LatLng(latitude, longitude)); 
+				Log.d("test", "nada");
+			 }
 
 		}
 		}
@@ -543,8 +593,10 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 	
 	@Override
 	protected void onDestroy() {
+		friendHandler.removeCallbacks(friendRunnable);
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		
 		Log.d("logout", "onDestroy called, lets log out");
 		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE); //0 is for mode private
 		boolean goingToRotate = pref.getBoolean("goingToRotate", true);
@@ -552,6 +604,35 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		//if we are not going to rotate(for example we're going to kill the app) then we can try to logout;
 		if(!goingToRotate)
 			Business.CheckLogout(this);
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		double mLatitude = location.getLatitude();
+		double mLongitude = location.getLongitude();
+		LatLng pont = new LatLng(mLatitude, mLongitude);
+				
+		Mmap.moveCamera(CameraUpdateFactory.newLatLng(pont));
+		Mmap.animateCamera(CameraUpdateFactory.zoomTo(10));        
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 

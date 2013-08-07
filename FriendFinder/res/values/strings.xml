@@ -14,10 +14,11 @@
     <string name="family_name">Mustermann</string>
     <string name="image_person">Image Person</string>
     <string name="back">back</string>
+    <string name="get_directions">Get Directions</string>
     
     <!-- Search -->
     <string name="search_title">Search</string>
-    <string name="search_hint">first name, last name</string>
+    <string name="search_hint">Friend\'s Name</string>
 	<string name="app_id">395072980615176</string>
 </resources>
 
