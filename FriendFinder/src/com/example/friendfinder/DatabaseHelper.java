@@ -236,9 +236,7 @@ public class DatabaseHelper {
 		            Log.d("score", "Error: " + e.getMessage());
 		        }
 		    }
-		});
-		
-		
+		});				
 	}
 	
 	public static void GetAllMarkerFromAnUser (final Context context, ParseUser user)
@@ -571,7 +569,6 @@ public class DatabaseHelper {
 		 query.include("UserFriendId.Metadata");
 		 
 		 
-		 
 		 query.findInBackground(new FindCallback<ParseObject>() {
 			 
 			public void done(List<ParseObject> list, ParseException e) {
@@ -597,8 +594,12 @@ public class DatabaseHelper {
 							 listUser.add(usr1);
 						 }	 
 					}
-					 
-					 ((MainActivity) context).processFoundAllFriendToPrintMarker(listUser);
+					 if(list.size() > 0)
+					 {
+						 ParseQuery<ParseObject> queryMarker = ParseQuery.getQuery("Marker");
+						 queryMarker.whereContainedIn("UserId", list);						 
+						 //((MainActivity) context).processFoundAllFriendToPrintMarker(listUser);
+					 }
 					
 				 }
 				 else

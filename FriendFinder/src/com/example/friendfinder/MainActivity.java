@@ -2,7 +2,10 @@ package com.example.friendfinder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -41,6 +44,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -54,10 +59,13 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     private ParseUser user = null;
 	private final String DebugLoginTag = "LOGIN";
 	private Button bLogOut;
-	private ArrayList<Marker> friendsMarkers = new ArrayList<Marker>();
 	private HashMap<String, Marker> friendMarkersHashmap = new HashMap<String, Marker>();
+	private HashMap<String, Marker> friendsMarkersPOI = new HashMap<String, Marker>();
 	private Handler friendHandler = new Handler();
-	private Runnable friendRunnable = null; 
+	private Runnable friendRunnable = null;
+	
+	private Handler friendsPOIHandler = new Handler();
+	private Runnable friendsPOIRunnable = null;
 	private boolean cancelUpdate = false;
 	
     @Override
@@ -150,10 +158,10 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 							 listUser.add(usr1);
 						 }	
 					 }
-				} catch (com.parse.ParseException e1) {
+				} catch (com.parse.ParseException e) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					Log.d("cancel", e1.getMessage());
+					e.printStackTrace();
+					Log.d("cancel", e.getMessage());
 				}
 				 finally
 				 {
@@ -170,6 +178,98 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
         	
         };
         
+        friendsPOIRunnable = new Runnable() {
+        	private List<ParseObject> list = null;
+        	private ArrayList<ParseUser> listUser = null;
+        	private List<ParseObject> listMarkers = null;
+        	private HashMap<String, ParseObject> listMarkersPOI = null;
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				  final ParseUser current_user = ParseUser.getCurrentUser();
+					 
+					 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+
+					 
+					 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+					 query1.whereEqualTo("UserFriendId", current_user);
+					 
+					 
+					 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+					 query2.whereEqualTo("UserId", current_user);
+					 
+					 
+					 listQ.add(query1);
+					 listQ.add(query2);
+					 
+					 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
+					 query.include("UserId.Metadata");
+					 query.include("UserFriendId.Metadata");
+					 
+					 try
+					 {
+						 list = query.find();
+						 listUser = new ArrayList<ParseUser>();
+						 
+						 for (ParseObject parseObject : list) {
+							
+							 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
+							 ParseUser usr2 = parseObject.getParseUser("UserId");
+							 
+							 Log.d("usr1", usr1.getUsername());
+							 Log.d("usr2", usr2.getUsername());
+							 
+							 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+							 {
+								 listUser.add(usr2);
+							 }
+							 else
+							 {
+								 listUser.add(usr1);
+							 }	 
+						}
+						 if(list.size() > 0)
+						 {
+							 ParseQuery<ParseObject> queryMarker = ParseQuery.getQuery("Marker");
+							 queryMarker.whereContainedIn("UserId", listUser);
+							 try
+							 {
+								 listMarkers = queryMarker.find();
+								 listMarkersPOI = new HashMap<String, ParseObject>();
+								 for(ParseObject marker: listMarkers)
+								 {
+									 listMarkersPOI.put(marker.getObjectId(), marker);
+								 }
+								 
+							 }
+							 catch(com.parse.ParseException e)
+							 {
+								 Log.d("cancel", e.getMessage()); 
+							 }
+							 finally
+							 {
+								 runOnUiThread(new Runnable() {
+										public void run() {
+											Log.d("intent", "here4");
+											processFoundAllFriendToPrintMarker(listMarkersPOI);
+										}
+									});
+							 }
+							 
+							 //((MainActivity) context).processFoundAllFriendToPrintMarker(listUser);
+						 }
+					 }
+					 catch(com.parse.ParseException e)
+					{
+						 Log.d("cancel", e.getMessage());	 
+					}
+					 finally
+					 {
+						 
+					 }
+				
+			}
+		};
         
         bLogOut.setOnClickListener(new OnClickListener() {
 			
@@ -477,7 +577,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 			 }
 			 else
 			 {
-				friendMarkersHashmap.get(user.getObjectId()).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+				friendMarkersHashmap.get(user.getObjectId()).setPosition(new LatLng(latitude, longitude));
 			 }
 		}
 		
@@ -501,9 +601,39 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		
 	}
 	
-	public void processFoundAllFriendToPrintMarker(ArrayList<ParseUser> listUser)
+	public void processFoundAllFriendToPrintMarker(HashMap<String, ParseObject> markers)
 	{
+		for(Map.Entry<String, ParseObject> entry : markers.entrySet())
+		{
+			ParseGeoPoint geoPoint = (ParseGeoPoint) entry.getValue().get("position");
+            
+            double longitude = geoPoint.getLongitude();
+            double latitude = geoPoint.getLatitude();
+			if(friendsMarkersPOI.containsKey(entry.getKey()))
+			{
+				friendsMarkersPOI.get(entry.getKey()).setPosition(new LatLng(latitude, longitude));
+			}
+			else
+			{
+				String name = ((ParseObject)entry.getValue().get("title")).toString();
 		
+				Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((String) name)
+        		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+        
+				friendsMarkersPOI.put(entry.getKey(), m);
+			}
+		}
+		
+		Iterator<Entry<String, Marker>> it = friendsMarkersPOI.entrySet().iterator();
+		while(it.hasNext())
+		{
+			Map.Entry<String, Marker> pairs = (Map.Entry<String, Marker>)it.next();
+			if(!markers.containsKey(pairs.getKey()))
+			{
+				pairs.getValue().remove();
+				it.remove();
+			}
+		}
 	}
 	
 	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList)
