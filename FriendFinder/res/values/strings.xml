@@ -16,6 +16,14 @@
     <string name="back">back</string>
     <string name="get_directions">Get Directions</string>
     
+    <!--  PopUpDetailsPoi -->
+    <string name="poi_title">Title</string>
+    <string name="poi_description">Description</string>
+    
+    <!--  PopUpSavePoi -->
+    <string name="popup_save_poi">Save</string>
+    <string name="popup_close_poi">Back</string>
+    
     <!-- Search -->
     <string name="search_title">Search</string>
     <string name="search_hint">Friend\'s Name</string>

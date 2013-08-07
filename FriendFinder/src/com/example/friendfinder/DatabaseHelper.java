@@ -276,7 +276,7 @@ public class DatabaseHelper {
 		
 	}
 	
-	public static boolean SaveMarker (String info, String title)
+	public static boolean SaveMarker (String info, String title, ParseGeoPoint position)
 	{
 		try
 		{
@@ -288,12 +288,8 @@ public class DatabaseHelper {
 			marker.put("description", info);
 			marker.put("UserId",current_user);
 			
-			
-			ParseGeoPoint point = (ParseGeoPoint) current_user.get("position");
-			marker.put("position", point);
+			marker.put("position", position);
 			Log.d("remi", "point");
-			//marker.put("position", value)
-			
 			
 			marker.saveInBackground();
 		

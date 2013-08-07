@@ -22,13 +22,11 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -38,6 +36,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -61,6 +60,8 @@ public class MainActivity extends FragmentActivity implements
 	private Button bLogOut;
 	private HashMap<String, Marker> friendMarkersHashmap = new HashMap<String, Marker>();
 	private HashMap<String, Marker> friendsMarkersPOI = new HashMap<String, Marker>();
+	private HashMap<String, Marker> MyMarkersPOI = new HashMap<String, Marker>();
+	private ArrayList<Marker> tempMarkers = new ArrayList<Marker>();
 	private Handler friendHandler = new Handler();
 	private Runnable friendRunnable = null;
 	private Handler friendsPOIHandler = new Handler();
@@ -110,7 +111,7 @@ public class MainActivity extends FragmentActivity implements
 			onLocationChanged(location);
 		}
 
-		locationManager.requestLocationUpdates(provider, 20000, 0, this);
+		//locationManager.requestLocationUpdates(provider, 20000, 0, this);
 
 		// Search
 		handleIntent(getIntent());
@@ -237,6 +238,7 @@ public class MainActivity extends FragmentActivity implements
 						 if(list.size() > 0)
 						 {
 							 ParseQuery<ParseObject> queryMarker = ParseQuery.getQuery("Marker");
+							 queryMarker.include("UserId.Metadata");
 							 queryMarker.whereContainedIn("UserId", listUser);
 							 try
 							 {
@@ -261,8 +263,6 @@ public class MainActivity extends FragmentActivity implements
 										}
 									});
 							 }
-							 
-							 //((MainActivity) context).processFoundAllFriendToPrintMarker(listUser);
 						 }
 					 }
 					 catch(com.parse.ParseException e)
@@ -285,6 +285,7 @@ public class MainActivity extends FragmentActivity implements
 				// while(!cancel);
 				Log.d("cancel", "going to cancel");
 				friendHandler.removeCallbacks(friendRunnable);
+				friendsPOIHandler.removeCallbacks(friendsPOIRunnable);
 				// while(!finishedUpdatingFriendsMap);
 
 				if (user != null) {
@@ -303,6 +304,7 @@ public class MainActivity extends FragmentActivity implements
 		Mmap.setOnMarkerClickListener(this);
 
 		Mmap.addMarker(new MarkerOptions()
+				.snippet("pos")
 				.position(new LatLng(0, 0))
 				.title("First Last")
 				.icon(BitmapDescriptorFactory
@@ -337,43 +339,32 @@ public class MainActivity extends FragmentActivity implements
 			}
 
 		});
-
+		
+		Mmap.setOnMapLongClickListener(new OnMapLongClickListener() {
+			
+			@Override
+			public void onMapLongClick(LatLng point) {
+				// TODO Auto-generated method stub
+				Mmap.addMarker(new MarkerOptions().position(point).snippet("newPoi").draggable(true));
+			}
+		});
+		
 		Mmap.setOnMarkerDragListener(new OnMarkerDragListener() {
 
 			@Override
 			public void onMarkerDragStart(Marker marker) {
-				// TODO Auto-generated method stub
-				// Here your code
-				Toast.makeText(MainActivity.this, "Dragging Start",
-						Toast.LENGTH_SHORT).show();
+					Log.d("poi", "dragStart");
+			
 			}
 
 			@Override
 			public void onMarkerDragEnd(Marker marker) {
-				/*
-				 * LatLng position = marker.getPosition(); // Toast.makeText(
-				 * MainActivity.this, "Lat " + position.latitude + " " + "Long "
-				 * + position.longitude, Toast.LENGTH_LONG).show();
-				 */
 
-				/*
-				 * Location location1 = new Location("");
-				 * location1.setLatitude(position.latitude);
-				 * location1.setLongitude(position.longitude);
-				 * 
-				 * 
-				 * Toast.makeText( MainActivity.this, "Lat " +
-				 * location1.getLatitude() + " " + "Long " +
-				 * location1.getLongitude(), Toast.LENGTH_LONG).show();
-				 */
 			}
 
 			@Override
-			public void onMarkerDrag(Marker marker) {
+			public void onMarkerDrag(Marker arg0) {
 				// TODO Auto-generated method stub
-				// Toast.makeText(MainActivity.this, "Dragging",
-				// Toast.LENGTH_SHORT).show();
-				System.out.println("Draagging");
 			}
 		});
 
@@ -392,6 +383,7 @@ public class MainActivity extends FragmentActivity implements
 		// TODO Auto-generated method stub
 		super.onResume();
 		friendHandler.post(friendRunnable);
+		friendsPOIHandler.post(friendsPOIRunnable);
 	}
 
 	@Override
@@ -399,26 +391,7 @@ public class MainActivity extends FragmentActivity implements
 		// TODO Auto-generated method stub
 		super.onPause();
 		friendHandler.removeCallbacks(friendRunnable);
-	}
-
-	@Override
-	// Search
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.options_menu, menu);
-
-		// // Associate searchable configuration with the SearchView
-		// SearchManager searchManager = (SearchManager)
-		// getSystemService(Context.SEARCH_SERVICE);
-		// SearchView searchView = (SearchView) menu.findItem(R.id.search)
-		// .getActionView();
-		// searchView.setSearchableInfo(searchManager
-		// .getSearchableInfo(getComponentName()));
-		
-		/*searchView = (SearchView) */menu.findItem(R.id.action_search);//.getActionView();
-		menu.findItem(R.id.action_search).getActionView();
-
-		return super.onCreateOptionsMenu(menu);
+		friendsPOIHandler.removeCallbacks(friendsPOIRunnable);
 	}
 
 	@Override
@@ -442,8 +415,10 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	@Override
-	public boolean onMarkerClick(Marker arg0) {
-
+	public boolean onMarkerClick(final Marker arg0) {
+		
+		if("pos".equals(arg0.getSnippet()))
+		{
 		String[] nameParts = arg0.getTitle().split(" ");
 
 		// if (v.getId() == R.id.btnShowPopup) {
@@ -499,9 +474,70 @@ public class MainActivity extends FragmentActivity implements
 		});
 
 		// popupWindow.showAsDropDown(btnPop);
-		popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+			popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+		}
+		else if("poi".equals(arg0.getSnippet()))
+		{
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+					.getSystemService(LAYOUT_INFLATER_SERVICE);
 
-		// }
+			View popupView = layoutInflater.inflate(R.layout.popup_details_poi, null);
+			final PopupWindow popupWindow = new PopupWindow(popupView,
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+			TextView poiTitle = (TextView) popupView
+					.findViewById(R.id.tPOITitle);
+			
+			poiTitle.setText(arg0.getTitle());
+			Button btnBack = (Button) popupView.findViewById(R.id.btnFacebookChat);
+			btnBack.setOnClickListener(new Button.OnClickListener() {
+				public void onClick(View v) {
+					popupWindow.dismiss();
+				}
+			});
+			popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+		}
+		else if("newPoi".equals(arg0.getSnippet()))
+		{
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+					.getSystemService(LAYOUT_INFLATER_SERVICE);
+
+			View popupView = layoutInflater.inflate(R.layout.popup_new_poi, null);
+			final PopupWindow popupWindow = new PopupWindow(popupView,
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+			final EditText poiTitle = (EditText) popupView
+					.findViewById(R.id.tPOISetTitle);
+			poiTitle.setText("ok");
+			Button btnBack = (Button) popupView.findViewById(R.id.btnBack);
+			btnBack.setOnClickListener(new Button.OnClickListener() {
+				public void onClick(View v) {
+					popupWindow.dismiss();
+				}
+			});
+			
+			Button btnSave = (Button) popupView.findViewById(R.id.btnSave);
+			btnSave.setOnClickListener(new Button.OnClickListener() {
+				public void onClick(View v) {
+					String newTitle = poiTitle.getText().toString().trim();
+					if(newTitle.length() > 0)
+					{
+						Business.SaveAMarker("NA", newTitle, new ParseGeoPoint(arg0.getPosition().latitude, arg0.getPosition().longitude));
+						tempMarkers.add(arg0);
+						arg0.setDraggable(false);
+						popupWindow.dismiss();
+					}
+					else
+					{
+						poiTitle.setError("Fill in the title");
+					}
+					
+				}
+			});
+			
+			popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+		}
+		
 
 		return true;
 	}
@@ -568,18 +604,16 @@ public class MainActivity extends FragmentActivity implements
 
 				Marker m = Mmap
 						.addMarker(new MarkerOptions()
+								.snippet("pos")
 								.position(new LatLng(latitude, longitude))
 								.title((String) name)
 								.icon(BitmapDescriptorFactory
 										.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-				// friendsMarkers.add(m);
 				friendMarkersHashmap.put(user.getObjectId(), m);
 			} else {
 				friendMarkersHashmap
 						.get(user.getObjectId())
-						.setIcon(
-								BitmapDescriptorFactory
-										.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+						.setPosition(new LatLng(latitude, longitude));
 			}
 		}
 
@@ -605,6 +639,8 @@ public class MainActivity extends FragmentActivity implements
 
 	public void processFoundAllFriendToPrintMarker(HashMap<String, ParseObject> markers)
 	{
+		if(!cancelUpdate)
+		{
 		for(Map.Entry<String, ParseObject> entry : markers.entrySet())
 		{
 			ParseGeoPoint geoPoint = (ParseGeoPoint) entry.getValue().get("position");
@@ -617,9 +653,13 @@ public class MainActivity extends FragmentActivity implements
 			}
 			else
 			{
-				String name = ((ParseObject)entry.getValue().get("title")).toString();
+				ParseUser usr = ((ParseUser)entry.getValue().get("UserId"));
+				ParseObject meta = ((ParseObject)usr.get("Metadata"));
+				
+				String userName = meta.get("FirstName") + " " + meta.get("LastName");
+				String name = userName + " - " + entry.getValue().get("title").toString();
 		
-				Marker m = Mmap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((String) name)
+				Marker m = Mmap.addMarker(new MarkerOptions().snippet("poi").position(new LatLng(latitude, longitude)).title((String) name)
         		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
         
 				friendsMarkersPOI.put(entry.getKey(), m);
@@ -635,6 +675,8 @@ public class MainActivity extends FragmentActivity implements
 				pairs.getValue().remove();
 				it.remove();
 			}
+		}
+		friendsPOIHandler.postDelayed(friendsPOIRunnable, friendsUpdateDelay);
 		}
 	}
 
@@ -659,10 +701,6 @@ public class MainActivity extends FragmentActivity implements
 
 	public boolean PlaceAllFriend(List<ParseUser> friendList) {
 
-		/*
-		 * for(int i = 0; i < friendsMarkers.size(); i++) {
-		 * friendsMarkers.get(i).remove(); } friendsMarkers.clear();
-		 */
 		if (!cancelUpdate) {
 			for (ParseUser user : friendList) {
 				ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
@@ -679,6 +717,7 @@ public class MainActivity extends FragmentActivity implements
 
 					Marker m = Mmap
 							.addMarker(new MarkerOptions()
+									.snippet("pos")
 									.position(new LatLng(latitude, longitude))
 									.title((String) name)
 									.icon(BitmapDescriptorFactory
@@ -692,11 +731,9 @@ public class MainActivity extends FragmentActivity implements
 				}
 
 			}
-		}
-		if (!cancelUpdate) {
 			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
 		}
-		bLogOut.setVisibility(View.VISIBLE);
+		//bLogOut.setVisibility(View.VISIBLE);
 		return true;
 	}
 
@@ -705,6 +742,7 @@ public class MainActivity extends FragmentActivity implements
 		bLogOut.setVisibility(View.VISIBLE);
 		if (!cancelUpdate) {
 			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
+			friendsPOIHandler.postDelayed(friendsPOIRunnable, friendsUpdateDelay);
 		}
 	}
 
@@ -722,7 +760,8 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	protected void onDestroy() {
-		friendHandler.removeCallbacks(friendRunnable);
+		/*friendHandler.removeCallbacks(friendRunnable);
+		friendsPOIHandler.removeCallbacks(friendsPOIRunnable);*/
 		// TODO Auto-generated method stub
 		super.onDestroy();
 
@@ -778,7 +817,7 @@ public class MainActivity extends FragmentActivity implements
 		actionBar = getActionBar();
 	}
 
-	@Override
+	/*@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
@@ -795,5 +834,5 @@ public class MainActivity extends FragmentActivity implements
 
 	public void openSearch() {
 		
-	}
+	}*/
 }

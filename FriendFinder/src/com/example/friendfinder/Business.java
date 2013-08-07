@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -55,11 +56,11 @@ public class Business  {
 		
 	}
 	
-	public static void SaveAMarker(String info, String title)
+	public static void SaveAMarker(String info, String title, ParseGeoPoint position)
 	{
 		//Fonction qui sauvgarde un nouveau marker dans la dataBase
 		// TODO Vrifier le marker est bien assosi a l'user qui le cre
-		DatabaseHelper.SaveMarker(info, title);
+		DatabaseHelper.SaveMarker(info, title, position);
 	}
 
 	public static void DeleteFriend(ParseUser user, Context context) {
