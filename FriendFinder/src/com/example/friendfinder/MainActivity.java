@@ -73,8 +73,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		Log.d("positionService", "here5");
 		startService(intentLaunchService);
 
-        GooglePlayServicesUtil
-                .isGooglePlayServicesAvailable(getApplicationContext());
+        GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
         Mmap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
         Mmap.setMyLocationEnabled(true);
         Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
