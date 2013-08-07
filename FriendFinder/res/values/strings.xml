@@ -20,5 +20,6 @@
     <string name="search_title">Search</string>
     <string name="search_hint">Friend\'s Name</string>
 	<string name="app_id">395072980615176</string>
+	<string name="action_search">Search</string>
 </resources>
 
