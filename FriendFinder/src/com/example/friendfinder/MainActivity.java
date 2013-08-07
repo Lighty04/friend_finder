@@ -644,10 +644,14 @@ public class MainActivity extends FragmentActivity implements
 										.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 				friendMarkersHashmap.put(user.getObjectId(), m);
 			} else {
-				friendMarkersHashmap
-						.get(user.getObjectId())
-						.setPosition(new LatLng(latitude, longitude));
+				Marker m = friendMarkersHashmap.get(user.getObjectId());
+				m.setPosition(new LatLng(latitude, longitude));
+				m.setIcon(BitmapDescriptorFactory
+										.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+				
 			}
+			Mmap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude)));
+			Mmap.animateCamera(CameraUpdateFactory.zoomTo(10));
 		}
 
 		Log.v("call", "MainActivity.processSearchFirstLastName");
