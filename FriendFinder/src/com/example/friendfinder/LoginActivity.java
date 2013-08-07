@@ -39,13 +39,13 @@ public class LoginActivity extends Activity {
 	private String mPassword;
 
 	// UI references.
-	private EditText mEmailView;
-	private EditText mPasswordView;
+	//private EditText mEmailView;
+	//private EditText mPasswordView;
 	private View mLoginFormView;
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
-	private Button mNewAccount;
-	private CheckBox keepLogin;
+	//private Button mNewAccount;
+	//private CheckBox keepLogin;
 	private Button fbSignIn;
 
 	@Override
@@ -55,12 +55,12 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 		DatabaseHelper.initializeParse(LoginActivity.this);
 		// Set up the login form.
-		mEmailView = (EditText) findViewById(R.id.email);
+		//mEmailView = (EditText) findViewById(R.id.email);
 
-		mPasswordView = (EditText) findViewById(R.id.password);
-		keepLogin = (CheckBox) findViewById(R.id.keepLogin);
+		//mPasswordView = (EditText) findViewById(R.id.password);
+		//keepLogin = (CheckBox) findViewById(R.id.keepLogin);
 		
-		mPasswordView
+		/*mPasswordView
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 					@Override
 					public boolean onEditorAction(TextView textView, int id,
@@ -72,20 +72,20 @@ public class LoginActivity extends Activity {
 						return false;
 					}
 				});
-
+		*/
 		mLoginFormView = findViewById(R.id.login_form);
 		mLoginStatusView = findViewById(R.id.login_status);
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
-		findViewById(R.id.sign_in_button).setOnClickListener(
+		/*findViewById(R.id.sign_in_button).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
 						attemptLogin();
 					}
-				});
+				});*/
 		
-		mNewAccount = (Button) findViewById(R.id.new_account_button);
+		/*mNewAccount = (Button) findViewById(R.id.new_account_button);
 		mNewAccount.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -94,7 +94,7 @@ public class LoginActivity extends Activity {
 				i.setClass(LoginActivity.this, SignUpActivity.class);
 				startActivity(i);
 			}
-		});
+		});*/
 		
 		fbSignIn = (Button) findViewById(R.id.fb_sign_in);
 		fbSignIn.setOnClickListener(new OnClickListener() {
@@ -144,7 +144,7 @@ public class LoginActivity extends Activity {
 	 * If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual login attempt is made.
 	 */
-	public void attemptLogin() {
+	/*public void attemptLogin() {
 		// Reset errors.
 		mEmailView.setError(null);
 		mPasswordView.setError(null);
@@ -196,7 +196,7 @@ public class LoginActivity extends Activity {
 			//mAuthTask = new UserLoginTask();
 			//mAuthTask.execute((Void) null);
 		}
-	}
+	}*/
 	
 	public void loginSuccessfull(ParseUser user)
 	{
@@ -221,8 +221,8 @@ public class LoginActivity extends Activity {
 	{		
 		Log.d(DebugLoginTag, "Login failed bad password");
 		showProgress(false);
-		mPasswordView.setError(getString(R.string.error_incorrect_password));
-		mPasswordView.requestFocus();
+		/*mPasswordView.setError(getString(R.string.error_incorrect_password));
+		mPasswordView.requestFocus();*/
 		//do other UI stuff;
 	}
 	
