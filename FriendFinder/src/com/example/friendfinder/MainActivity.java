@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -154,34 +155,21 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		       
 		Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
 			
+			
+			
 			@Override
 		    public void onInfoWindowClick(Marker marker) {
 		    // When touch InfoWindow on the market, display another screen.
 		      			
-		
-				LatLng position = marker.getPosition();
-				Location location1 = new Location("");
-				location1.setLatitude(position.latitude);
-				location1.setLongitude(position.longitude);
-				
-				 double lat1 = Mmap.getMyLocation().getLatitude();
-				 double lon1 = Mmap.getMyLocation().getLongitude();
-				 double lat2 = location1.getLatitude();
-				 double lon2 = location1.getLongitude();
-	        	    	 
-	
-	
-		       float[] results = new float[1]; // 1, 2 or 3 depending on what information
-		       Location.distanceBetween(lat1, lon1, lat2, lon2, results);
-		       float distance = results[0];	
-		       
-		       Toast.makeText(MainActivity.this,
-		               "Your friend is " +distance+" meters away from you!",
-		               Toast.LENGTH_SHORT).show();	        	               
+				showDistance(marker);
+					        	               
         	            
             }
 			
 		});  
+		
+		
+		
         
         
         Mmap.setOnMarkerDragListener(new OnMarkerDragListener() {
@@ -232,6 +220,31 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
 		editor.commit();
 
     }
+    
+    
+    private void showDistance(Marker marker) {
+		
+		LatLng position = marker.getPosition();
+		Location location1 = new Location("");
+		location1.setLatitude(position.latitude);
+		location1.setLongitude(position.longitude);
+		
+		 double lat1 = Mmap.getMyLocation().getLatitude();
+		 double lon1 = Mmap.getMyLocation().getLongitude();
+		 double lat2 = location1.getLatitude();
+		 double lon2 = location1.getLongitude();
+    	    	 
+
+
+       float[] results = new float[1]; // 1, 2 or 3 depending on what information
+       Location.distanceBetween(lat1, lon1, lat2, lon2, results);
+       float distance = results[0]/1000;	
+       
+       Toast.makeText(MainActivity.this,
+               "Your friend is " +distance+" kilometers away from you!",
+               Toast.LENGTH_SHORT).show();
+		
+	}
     
 	@Override //Search
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -311,7 +324,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     }
 
 	@Override
-	public boolean onMarkerClick(Marker arg0) {
+	public boolean onMarkerClick(final Marker arg0) {
 		
 			String[] nameParts = arg0.getTitle().split(" ");	
 	
@@ -337,7 +350,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     		
     		
     		//Back Button
-    		Button btnBack = (Button) popupView.findViewById(R.id.btnFacebookChat);
+    		ImageButton btnBack = (ImageButton) popupView.findViewById(R.id.btnBack);
     		btnBack.setOnClickListener(
     		new Button.OnClickListener() {
     			public void onClick(View v) {
@@ -347,6 +360,7 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     		
     		//Phone Button
     		Button btnPhone = (Button) popupView.findViewById(R.id.btnPhone);
+    		//btnPhone.setVisibility(View.GONE);
     		btnPhone.setOnClickListener(
     		new Button.OnClickListener() {
     			public void onClick(View v) {
@@ -371,7 +385,19 @@ public class MainActivity extends FragmentActivity implements OnMarkerClickListe
     				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "The email subject text");   
     				startActivity(emailIntent);
     			}
-    		});    		
+    		});
+    		
+    		//Show Distance
+    		Button btnShowDistance = (Button) popupView.findViewById(R.id.btnShowDistance);
+    		btnShowDistance.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				showDistance(arg0);
+    			}
+    		});
+    		
+    		
+    		
     		
 
     		//popupWindow.showAsDropDown(btnPop);
