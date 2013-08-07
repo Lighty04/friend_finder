@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import android.app.ActionBar;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Criteria;
@@ -22,11 +23,14 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -278,30 +282,6 @@ public class MainActivity extends FragmentActivity implements
 				
 			}
 		};
-        
-        bLogOut.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				cancelUpdate = true;
-				// while(!cancel);
-				Log.d("cancel", "going to cancel");
-				friendHandler.removeCallbacks(friendRunnable);
-				friendsPOIHandler.removeCallbacks(friendsPOIRunnable);
-				// while(!finishedUpdatingFriendsMap);
-
-				if (user != null) {
-					if (ParseFacebookUtils.getSession() != null)
-						ParseFacebookUtils.getSession()
-								.closeAndClearTokenInformation();
-					ParseUser.logOut();
-					Log.d("logout", "going to log out");
-					finish();
-				} else {
-					Log.d("logout", "cant log out");
-				}
-			}
-		});
 
 		Mmap.setOnMarkerClickListener(this);
 
@@ -311,36 +291,6 @@ public class MainActivity extends FragmentActivity implements
 				.title("First Last")
 				.icon(BitmapDescriptorFactory
 						.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-
-		Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
-
-			@Override
-			public void onInfoWindowClick(Marker marker) {
-				// When touch InfoWindow on the market, display another screen.
-
-				LatLng position = marker.getPosition();
-				Location location1 = new Location("");
-				location1.setLatitude(position.latitude);
-				location1.setLongitude(position.longitude);
-
-				double lat1 = Mmap.getMyLocation().getLatitude();
-				double lon1 = Mmap.getMyLocation().getLongitude();
-				double lat2 = location1.getLatitude();
-				double lon2 = location1.getLongitude();
-
-				float[] results = new float[1]; // 1, 2 or 3 depending on what
-												// information
-				Location.distanceBetween(lat1, lon1, lat2, lon2, results);
-				float distance = results[0];
-
-				Toast.makeText(
-						MainActivity.this,
-						"Your friend is " + distance + " meters away from you!",
-						Toast.LENGTH_SHORT).show();
-
-			}
-
-		});
 		
 		Mmap.setOnMapLongClickListener(new OnMapLongClickListener() {
 			
@@ -375,10 +325,103 @@ public class MainActivity extends FragmentActivity implements
 		// depeding on current settings;
 		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
+		
+		Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
+			
+			
+			
+			@Override
+		    public void onInfoWindowClick(Marker marker) {
+		    // When touch InfoWindow on the market, display another screen.
+		      			
+				showDistance(marker);
+					        	               
+        	            
+            }
+			
+		});		
 		editor.putBoolean("goingToRotate", false);
 		editor.commit();
 
+    }
+    
+    
+    private void showDistance(Marker marker) {
+		
+		LatLng position = marker.getPosition();
+		Location location1 = new Location("");
+		location1.setLatitude(position.latitude);
+		location1.setLongitude(position.longitude);
+		
+		 double lat1 = Mmap.getMyLocation().getLatitude();
+		 double lon1 = Mmap.getMyLocation().getLongitude();
+		 double lat2 = location1.getLatitude();
+		 double lon2 = location1.getLongitude();
+    	    	 
+
+
+       float[] results = new float[1]; // 1, 2 or 3 depending on what information
+       Location.distanceBetween(lat1, lon1, lat2, lon2, results);
+       float distance = results[0]/1000;	
+       
+       Toast.makeText(MainActivity.this,
+               "Your friend is " +distance+" kilometers away from you!",
+               Toast.LENGTH_SHORT).show();
+		
 	}
+    
+	@Override //Search
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.options_menu, menu);
+
+	    // Associate searchable configuration with the SearchView
+	    SearchManager searchManager =
+	           (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+	    SearchView searchView =
+	            (SearchView) menu.findItem(R.id.search).getActionView();
+	    searchView.setSearchableInfo(
+	            searchManager.getSearchableInfo(getComponentName()));
+	    return true;
+	}
+	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	        case R.id.logOut:
+	        	logoutFunction();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	private void logoutFunction() {
+
+			cancelUpdate = true;
+				//while(!cancel);
+				Log.d("cancel", "going to cancel");
+				friendHandler.removeCallbacks(friendRunnable);
+				//while(!finishedUpdatingFriendsMap);
+				
+			
+			if(user != null)
+			{
+				if(ParseFacebookUtils.getSession() != null)
+					ParseFacebookUtils.getSession().closeAndClearTokenInformation();
+				ParseUser.logOut();
+				Log.d("logout", "going to log out");
+				finish();
+			}
+			else
+			{
+				Log.d("logout", "cant log out");
+			}		
+	}	
+    
+
 
 	@Override
 	protected void onResume() {
@@ -386,6 +429,145 @@ public class MainActivity extends FragmentActivity implements
 		super.onResume();
 		friendHandler.post(friendRunnable);
 		friendsPOIHandler.post(friendsPOIRunnable);
+	}
+
+	public boolean onMarkerClick(final Marker arg0) {
+		if("pos".equals(arg0.getSnippet()))
+		{
+			String[] nameParts = arg0.getTitle().split(" ");	
+	
+		
+		//if (v.getId() == R.id.btnShowPopup) {
+    		LayoutInflater layoutInflater = 
+    				(LayoutInflater) getBaseContext()
+    				.getSystemService(LAYOUT_INFLATER_SERVICE);   		
+    		
+    		View popupView = layoutInflater.inflate(
+    				R.layout.popup_details_person, null);
+    		final PopupWindow popupWindow = new PopupWindow(
+    				popupView,
+    				LayoutParams.WRAP_CONTENT,
+    				LayoutParams.WRAP_CONTENT);    		
+    		
+    		
+    		TextView textViewPersonGivenName = (TextView) popupView.findViewById(R.id.tPersonGivenName);
+    		TextView textViewPersonFamilyName = (TextView) popupView.findViewById(R.id.tPersonFamilyName);
+    		
+    		textViewPersonGivenName.setText(nameParts[0]);
+    		textViewPersonFamilyName.setText(nameParts[1]);
+    		
+    		
+    		//Back Button
+    		ImageButton btnBack = (ImageButton) popupView.findViewById(R.id.btnBack);
+    		btnBack.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				popupWindow.dismiss();
+    			}
+    		});
+    		
+    		//Phone Button
+    		Button btnPhone = (Button) popupView.findViewById(R.id.btnPhone);
+    		//btnPhone.setVisibility(View.GONE);
+    		btnPhone.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				//make phone call
+    				Uri uriCall = Uri.parse("tel:12345");
+    				Intent callIntent = new Intent(Intent.ACTION_DIAL, uriCall);
+    			    startActivity(callIntent);
+    				//popupWindow.dismiss();
+
+    			}
+    		});
+    		
+    		//Email Button
+    		Button btnEmail = (Button) popupView.findViewById(R.id.btnEmail);
+    		btnEmail.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				//send email   				 
+    				Uri uriEmail = Uri.parse("mailto:email@hotmail.com");
+    				Intent emailIntent = new Intent(Intent.ACTION_SENDTO, uriEmail);
+    				emailIntent.putExtra(Intent.EXTRA_TEXT, "The email body text");     
+    				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "The email subject text");   
+    				startActivity(emailIntent);
+    			}
+    		});
+    		
+    		//Show Distance
+    		Button btnShowDistance = (Button) popupView.findViewById(R.id.btnShowDistance);
+    		btnShowDistance.setOnClickListener(
+    		new Button.OnClickListener() {
+    			public void onClick(View v) {
+    				showDistance(arg0);
+    			}
+    		});
+    		popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+			}
+    		else if("poi".equals(arg0.getSnippet()))
+    		{
+    			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+    					.getSystemService(LAYOUT_INFLATER_SERVICE);
+
+    			View popupView = layoutInflater.inflate(R.layout.popup_details_poi, null);
+    			final PopupWindow popupWindow = new PopupWindow(popupView,
+    					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+    			TextView poiTitle = (TextView) popupView
+    					.findViewById(R.id.tPOITitle);
+    			
+    			poiTitle.setText(arg0.getTitle());
+    			Button btnBack = (Button) popupView.findViewById(R.id.btnFacebookChat);
+    			btnBack.setOnClickListener(new Button.OnClickListener() {
+    				public void onClick(View v) {
+    					popupWindow.dismiss();
+    				}
+    			});
+    			popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+    		}
+    		else if("newPoi".equals(arg0.getSnippet()))
+    		{
+    			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+    					.getSystemService(LAYOUT_INFLATER_SERVICE);
+
+    			View popupView = layoutInflater.inflate(R.layout.popup_new_poi, null);
+    			final PopupWindow popupWindow = new PopupWindow(popupView,
+    					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+    			final EditText poiTitle = (EditText) popupView
+    					.findViewById(R.id.tPOISetTitle);
+    			poiTitle.setText("ok");
+    			Button btnBack = (Button) popupView.findViewById(R.id.btnBack);
+    			btnBack.setOnClickListener(new Button.OnClickListener() {
+    				public void onClick(View v) {
+    					popupWindow.dismiss();
+    				}
+    			});
+    			
+    			Button btnSave = (Button) popupView.findViewById(R.id.btnSave);
+    			btnSave.setOnClickListener(new Button.OnClickListener() {
+    				public void onClick(View v) {
+    					String newTitle = poiTitle.getText().toString().trim();
+    					if(newTitle.length() > 0)
+    					{
+    						Business.SaveAMarker("NA", newTitle, new ParseGeoPoint(arg0.getPosition().latitude, arg0.getPosition().longitude));
+    						tempMarkers.add(arg0);
+    						arg0.setDraggable(false);
+    						popupWindow.dismiss();
+    					}
+    					else
+    					{
+    						poiTitle.setError("Fill in the title");
+    					}
+    					
+    				}
+    			});
+    			
+    			popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+    		}
+    		
+    		return true;
 	}
 
 	@Override
@@ -399,7 +581,7 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	// Search
 	protected void onNewIntent(Intent intent) {
-		setIntent(intent);
+		setIntent(intent); //used to be on the same activity
 		handleIntent(intent);
 	}
 
@@ -415,157 +597,6 @@ public class MainActivity extends FragmentActivity implements
 			Business.searchFirstLastName(this, query);
 		}
 	}
-
-	@Override
-	public boolean onMarkerClick(final Marker arg0) {
-		
-		if("pos".equals(arg0.getSnippet()))
-		{
-		String[] nameParts = arg0.getTitle().split(" ");
-
-		// if (v.getId() == R.id.btnShowPopup) {
-		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
-				.getSystemService(LAYOUT_INFLATER_SERVICE);
-
-		View popupView = layoutInflater.inflate(R.layout.popup_details_person,
-				null);
-		final PopupWindow popupWindow = new PopupWindow(popupView,
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-		TextView textViewPersonGivenName = (TextView) popupView
-				.findViewById(R.id.tPersonGivenName);
-		TextView textViewPersonFamilyName = (TextView) popupView
-				.findViewById(R.id.tPersonFamilyName);
-
-		textViewPersonGivenName.setText(nameParts[0]);
-		textViewPersonFamilyName.setText(nameParts[1]);
-
-		// Back Button
-		Button btnBack = (Button) popupView.findViewById(R.id.btnFacebookChat);
-		btnBack.setOnClickListener(new Button.OnClickListener() {
-			public void onClick(View v) {
-				popupWindow.dismiss();
-			}
-		});
-
-		// Phone Button
-		Button btnPhone = (Button) popupView.findViewById(R.id.btnPhone);
-		btnPhone.setOnClickListener(new Button.OnClickListener() {
-			public void onClick(View v) {
-				// make phone call
-				Uri uriCall = Uri.parse("tel:12345");
-				Intent callIntent = new Intent(Intent.ACTION_DIAL, uriCall);
-				startActivity(callIntent);
-				// popupWindow.dismiss();
-
-			}
-		});
-
-		// Email Button
-		Button btnEmail = (Button) popupView.findViewById(R.id.btnEmail);
-		btnEmail.setOnClickListener(new Button.OnClickListener() {
-			public void onClick(View v) {
-				// send email
-				Uri uriEmail = Uri.parse("mailto:email@hotmail.com");
-				Intent emailIntent = new Intent(Intent.ACTION_SENDTO, uriEmail);
-				emailIntent.putExtra(Intent.EXTRA_TEXT, "The email body text");
-				emailIntent.putExtra(Intent.EXTRA_SUBJECT,
-						"The email subject text");
-				startActivity(emailIntent);
-			}
-		});
-
-		// popupWindow.showAsDropDown(btnPop);
-			popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-		}
-		else if("poi".equals(arg0.getSnippet()))
-		{
-			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
-					.getSystemService(LAYOUT_INFLATER_SERVICE);
-
-			View popupView = layoutInflater.inflate(R.layout.popup_details_poi, null);
-			final PopupWindow popupWindow = new PopupWindow(popupView,
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-			TextView poiTitle = (TextView) popupView
-					.findViewById(R.id.tPOITitle);
-			
-			poiTitle.setText(arg0.getTitle());
-			Button btnBack = (Button) popupView.findViewById(R.id.btnFacebookChat);
-			btnBack.setOnClickListener(new Button.OnClickListener() {
-				public void onClick(View v) {
-					popupWindow.dismiss();
-				}
-			});
-			popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-		}
-		else if("newPoi".equals(arg0.getSnippet()))
-		{
-			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
-					.getSystemService(LAYOUT_INFLATER_SERVICE);
-
-			View popupView = layoutInflater.inflate(R.layout.popup_new_poi, null);
-			final PopupWindow popupWindow = new PopupWindow(popupView,
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-			final EditText poiTitle = (EditText) popupView
-					.findViewById(R.id.tPOISetTitle);
-			poiTitle.setText("ok");
-			Button btnBack = (Button) popupView.findViewById(R.id.btnBack);
-			btnBack.setOnClickListener(new Button.OnClickListener() {
-				public void onClick(View v) {
-					popupWindow.dismiss();
-				}
-			});
-			
-			Button btnSave = (Button) popupView.findViewById(R.id.btnSave);
-			btnSave.setOnClickListener(new Button.OnClickListener() {
-				public void onClick(View v) {
-					String newTitle = poiTitle.getText().toString().trim();
-					if(newTitle.length() > 0)
-					{
-						Business.SaveAMarker("NA", newTitle, new ParseGeoPoint(arg0.getPosition().latitude, arg0.getPosition().longitude));
-						tempMarkers.add(arg0);
-						arg0.setDraggable(false);
-						popupWindow.dismiss();
-					}
-					else
-					{
-						poiTitle.setError("Fill in the title");
-					}
-					
-				}
-			});
-			
-			popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-		}
-		
-
-		return true;
-	}
-
-	/*
-	 * @Override public void onProviderDisabled(String provider) { // TODO
-	 * Auto-generated method stub
-	 * 
-	 * }
-	 * 
-	 * 
-	 * @Override public void onLocationChanged(Location location) { // TODO
-	 * Auto-generated method stub }
-	 * 
-	 * 
-	 * 
-	 * @Override public void onStatusChanged(String provider, int status, Bundle
-	 * extras) { // TODO Auto-generated method stub
-	 * 
-	 * }
-	 * 
-	 * @Override public void onProviderEnabled(String provider) { // TODO
-	 * Auto-generated method stub
-	 * 
-	 * }
-	 */
 
 	public void processFriendCircles(List<ParseObject> objects) {
 		StringBuilder sb = new StringBuilder();
@@ -735,14 +766,13 @@ public class MainActivity extends FragmentActivity implements
 			}
 			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
 		}
-		//bLogOut.setVisibility(View.VISIBLE);
 		return true;
 	}
 
 	public void errorFriendCircles(String errorMessage) {
 		Log.d(DebugLoginTag, errorMessage);
-		bLogOut.setVisibility(View.VISIBLE);
-		if (!cancelUpdate) {
+		if(!cancelUpdate)
+		{
 			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);
 			friendsPOIHandler.postDelayed(friendsPOIRunnable, friendsMarkersUpdateDelay);
 		}
@@ -818,23 +848,4 @@ public class MainActivity extends FragmentActivity implements
 	public void configureActionBar() {
 		actionBar = getActionBar();
 	}
-
-	/*@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-		case R.id.action_search:
-			openSearch();
-			return true;
-			// case R.id.action_compose:
-			// composeMessage();
-			// return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
-
-	public void openSearch() {
-		
-	}*/
 }
