@@ -1,8 +1,5 @@
 package com.example.friendfinder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -21,11 +18,6 @@ public class Business  {
 	static public void Connect(String user, String password, Context context) {
 		DatabaseHelper.SignInUser(user, password, context);
 	}
-	
-	static public void GetAllPosition( Context context) {
-		// Fonction qui retourne l'ensemble des position des amis du user connected dans la fonction processGetdAllPositions de mainActivity
-		DatabaseHelper.GetPositions(context);
-	}
 
 	public static void SaveAFriend(ParseUser user , Context context)
 	{
@@ -33,29 +25,13 @@ public class Business  {
 		//Fonction qui sauvgarde un new ami du current_user dans la DataBase
 		DatabaseHelper.SaveFriend(user, context);
 	}
-	
-	public static void GetaMarker(String title, Context context)
-	{
-		//Fonction qui retourne un marker selont son title dans la fonction processFoundAMarker de mainActivity
-		DatabaseHelper.GetAMarker(context, title);
-	}
-	
+
 	public static void GetallMarkerOfTheCurrentUser(Context context)
 	{
 		// pour l'instant cette fonction n'a pas de fonction de retour dans le main activity
 		DatabaseHelper.GetAllMarkerCurrent(context);
 	}
-	
-	public static void PrintaAllMarkerFriends(Context context,ArrayList<ParseUser> listUser)
-	{
-		//Fonction qui sert juste de relai entre la couche Bussiness et le main activity pour pouvoir afficher tous les markers des amis du current user 
-		Log.d("remi", "business");
-		for (ParseUser parseUser : listUser) {
-			DatabaseHelper.GetAllMarkerFromAnUser(context, parseUser);
-		}
-		
-	}
-	
+
 	public static void SaveAMarker(String info, String title, ParseGeoPoint position)
 	{
 		//Fonction qui sauvgarde un nouveau marker dans la dataBase
@@ -68,11 +44,6 @@ public class Business  {
 		//TODO Effacer la relation dans UserCircle
 		DatabaseHelper.DeleteFriend(user, context);
 		
-	}
-
-	public static void FindAFriend(HashMap<String, String> dictionary, Context context) {
-		//fonction qui retourne dans processFoundFriend de main activity un ami selon le dictionary donn
-		DatabaseHelper.CheckOutAFriend(dictionary, context);
 	}
 
 	public static void FindAllFriendToPrintMarkers(Context context) {

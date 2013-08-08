@@ -80,8 +80,6 @@ public class MainActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		// Added by Dany to configure the Action Bar and the search
-		// functionnality in it
 		configureActionBar();
 
 		cancelUpdate = false;
@@ -100,7 +98,6 @@ public class MainActivity extends FragmentActivity implements
 		Mmap.setMyLocationEnabled(true);
 		Mmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		bLogOut = (Button) findViewById(R.id.logOut);
-		// bLogOut.setVisibility(View.INVISIBLE);
 
 		LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -116,8 +113,7 @@ public class MainActivity extends FragmentActivity implements
 		if (location != null) {
 			onLocationChanged(location);
 		}
-
-		//locationManager.requestLocationUpdates(provider, 20000, 0, this);
+		locationManager.requestLocationUpdates(provider, 20000, 0, this);
 
 		// Search
 		handleIntent(getIntent());
@@ -128,9 +124,6 @@ public class MainActivity extends FragmentActivity implements
 
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-				Log.d("intent", "here1");
-				// TODO Auto-generated method stub
 				final ParseUser current_user = ParseUser.getCurrentUser();
 
 				List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
@@ -174,13 +167,11 @@ public class MainActivity extends FragmentActivity implements
 				} catch (com.parse.ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					Log.d("cancel", e.getMessage());
 				}
 				 finally
 				 {
 					 runOnUiThread(new Runnable() {
 						public void run() {
-							Log.d("intent", "here2");
 							PlaceAllFriend(listUser);
 						}
 					});
@@ -305,18 +296,14 @@ public class MainActivity extends FragmentActivity implements
 
 			@Override
 			public void onMarkerDragStart(Marker marker) {
-					Log.d("poi", "dragStart");
-			
 			}
 
 			@Override
 			public void onMarkerDragEnd(Marker marker) {
-
 			}
 
 			@Override
 			public void onMarkerDrag(Marker arg0) {
-				// TODO Auto-generated method stub
 			}
 		});
 
@@ -327,16 +314,9 @@ public class MainActivity extends FragmentActivity implements
 		SharedPreferences.Editor editor = pref.edit();
 		
 		Mmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
-			
-			
-			
 			@Override
 		    public void onInfoWindowClick(Marker marker) {
-		    // When touch InfoWindow on the market, display another screen.
-		      			
 				showDistance(marker);
-					        	               
-        	            
             }
 			
 		});		
@@ -344,7 +324,6 @@ public class MainActivity extends FragmentActivity implements
 		editor.commit();
 
     }
-    
     
     private void showDistance(Marker marker) {
 		
@@ -357,8 +336,6 @@ public class MainActivity extends FragmentActivity implements
 		 double lon1 = Mmap.getMyLocation().getLongitude();
 		 double lat2 = location1.getLatitude();
 		 double lon2 = location1.getLongitude();
-    	    	 
-
 
        float[] results = new float[1]; // 1, 2 or 3 depending on what information
        Location.distanceBetween(lat1, lon1, lat2, lon2, results);
@@ -385,7 +362,6 @@ public class MainActivity extends FragmentActivity implements
 	    return true;
 	}
 	
-	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle presses on the action bar items
@@ -393,36 +369,34 @@ public class MainActivity extends FragmentActivity implements
 	        case R.id.logOut:
 	        	logoutFunction();
 	            return true;
+	        case R.id.action_settings:
+	        	openSettings();
+	        	return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
 	}
 	
+	private void openSettings() {
+		Intent intent = new Intent(this, SettingsActivity.class);
+		startActivity(intent);
+	}
+	
 	private void logoutFunction() {
 
 			cancelUpdate = true;
-				//while(!cancel);
 				Log.d("cancel", "going to cancel");
 				friendHandler.removeCallbacks(friendRunnable);
-				//while(!finishedUpdatingFriendsMap);
-				
-			
+				friendsPOIHandler.removeCallbacks(friendsPOIRunnable);
 			if(user != null)
 			{
 				if(ParseFacebookUtils.getSession() != null)
 					ParseFacebookUtils.getSession().closeAndClearTokenInformation();
 				ParseUser.logOut();
-				Log.d("logout", "going to log out");
 				finish();
 			}
-			else
-			{
-				Log.d("logout", "cant log out");
-			}		
 	}	
     
-
-
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
@@ -434,10 +408,7 @@ public class MainActivity extends FragmentActivity implements
 	public boolean onMarkerClick(final Marker arg0) {
 		if("pos".equals(arg0.getSnippet()))
 		{
-			String[] nameParts = arg0.getTitle().split(" ");	
-	
-		
-		//if (v.getId() == R.id.btnShowPopup) {
+			String[] nameParts = arg0.getTitle().split(" ");
     		LayoutInflater layoutInflater = 
     				(LayoutInflater) getBaseContext()
     				.getSystemService(LAYOUT_INFLATER_SERVICE);   		
@@ -456,7 +427,6 @@ public class MainActivity extends FragmentActivity implements
     		textViewPersonGivenName.setText(nameParts[0]);
     		textViewPersonFamilyName.setText(nameParts[1]);
     		
-    		
     		//Back Button
     		ImageButton btnBack = (ImageButton) popupView.findViewById(R.id.btnBack);
     		btnBack.setOnClickListener(
@@ -468,7 +438,6 @@ public class MainActivity extends FragmentActivity implements
     		
     		//Phone Button
     		Button btnPhone = (Button) popupView.findViewById(R.id.btnPhone);
-    		//btnPhone.setVisibility(View.GONE);
     		btnPhone.setOnClickListener(
     		new Button.OnClickListener() {
     			public void onClick(View v) {
@@ -476,8 +445,6 @@ public class MainActivity extends FragmentActivity implements
     				Uri uriCall = Uri.parse("tel:12345");
     				Intent callIntent = new Intent(Intent.ACTION_DIAL, uriCall);
     			    startActivity(callIntent);
-    				//popupWindow.dismiss();
-
     			}
     		});
     		
@@ -537,11 +504,12 @@ public class MainActivity extends FragmentActivity implements
 
     			final EditText poiTitle = (EditText) popupView
     					.findViewById(R.id.tPOISetTitle);
-    			poiTitle.setText("ok");
+    			
     			Button btnBack = (Button) popupView.findViewById(R.id.btnBack);
     			btnBack.setOnClickListener(new Button.OnClickListener() {
     				public void onClick(View v) {
     					popupWindow.dismiss();
+    					arg0.remove();
     				}
     			});
     			
@@ -558,7 +526,7 @@ public class MainActivity extends FragmentActivity implements
     					}
     					else
     					{
-    						poiTitle.setError("Fill in the title");
+    						//poiTitle.setError("Fill in the title");
     					}
     					
     				}
@@ -568,6 +536,11 @@ public class MainActivity extends FragmentActivity implements
     		}
     		
     		return true;
+	}
+	
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -590,36 +563,19 @@ public class MainActivity extends FragmentActivity implements
 
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			String query = intent.getStringExtra(SearchManager.QUERY);
-
-			Log.v("call", "Query: " + query);
-
 			// Search
 			Business.searchFirstLastName(this, query);
 		}
 	}
 
-	public void processFriendCircles(List<ParseObject> objects) {
-		StringBuilder sb = new StringBuilder();
-    	for (int i=0; i<objects.size(); i++) {
-    		//sb.append(objects.get(i).get("tamere"));
-    		sb.append("---");
-    		//sb.append(objects.size());
-    		sb.append("\n");
-    	}
-    	sb.append(objects.size());
-    	
-    	Toast.makeText(MainActivity.this,
-        		sb.toString(), Toast.LENGTH_LONG).show();
-	}
-
-	public void processFoundFriend(ParseUser usr) {
+	/*public void processFoundFriend(ParseUser usr) {
 		// Apres l'appel de la fonction Business.FindAFriend c'est ici qu'on
 		// recoit l'ami cherche
 		Log.d(DebugLoginTag,
 				((ParseObject) usr.get("Metadata")).get("FirstName").toString());
 		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata"))
 				.get("LastName").toString());
-	}
+	}*/
 
 	public void processSearchFirstLastName(List<ParseUser> usrList) {
 
@@ -653,21 +609,6 @@ public class MainActivity extends FragmentActivity implements
 			Mmap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude)));
 			Mmap.animateCamera(CameraUpdateFactory.zoomTo(10));
 		}
-
-		Log.v("call", "MainActivity.processSearchFirstLastName");
-
-	}
-
-	// TO DELETE
-	/*
-	 * public void processFoundAllFriend(List<ParseUser> usrList) { //fonction
-	 * relai entre le main activity et la couche business
-	 * Business.PrintaAllMarkerFriends(this, listUser); }
-	 */
-
-	public void processFoundAMarker(ParseObject marker) {
-		// Aprs l'appel de la fonction GetaMarker on retrouve ici le marker
-		// correspondant au titre demand
 	}
 
 	public void processFoundAllMarkerCurrent(ParseObject marker) {
@@ -715,25 +656,6 @@ public class MainActivity extends FragmentActivity implements
 		}
 		friendsPOIHandler.postDelayed(friendsPOIRunnable, friendsMarkersUpdateDelay);
 		}
-	}
-
-	public void processGetdAllPositions(List<ParseGeoPoint> PositionsList) {
-		// Apres l'appel de la fonction Business.GetAllPosition on rcupre ici
-		// l'ensemble des positions des amis du user connected
-
-		Log.d(DebugLoginTag, "ListPosition");
-
-	}
-
-	public boolean printMarkers(List<ParseObject> markerList) {
-		// TODO Fonction qui apres l'appel de
-		// Business.FindAllFriendToPrintMarkers doit imprimer les lists de
-		// markers des amis du current user sur la map
-		for (ParseObject parseObject : markerList) {
-
-			Log.d("remi", parseObject.getObjectId());
-		}
-		return true;
 	}
 
 	public boolean PlaceAllFriend(List<ParseUser> friendList) {
@@ -791,25 +713,14 @@ public class MainActivity extends FragmentActivity implements
 		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
 		editor.commit();
-
 	}
 
 	@Override
 	protected void onDestroy() {
-		/*friendHandler.removeCallbacks(friendRunnable);
-		friendsPOIHandler.removeCallbacks(friendsPOIRunnable);*/
 		// TODO Auto-generated method stub
 		super.onDestroy();
-
-		Log.d("logout", "onDestroy called, lets log out");
-		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE); // 0
-																					// is
-																					// for
-																					// mode
-																					// private
+		SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
 		boolean goingToRotate = pref.getBoolean("goingToRotate", true);
-		Log.d("onDestroy",
-				"going to rotate is " + String.valueOf(goingToRotate));
 		// if we are not going to rotate(for example we're going to kill the
 		// app) then we can try to logout;
 		if (!goingToRotate)

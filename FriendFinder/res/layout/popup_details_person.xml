@@ -62,16 +62,22 @@
           android:id="@+id/btnPhone"
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:text="@string/phone" />
+          android:text="@string/phone" 
+          android:textColor="#ffffff"
+           android:background="#1E90FF"/>
       <Button
           android:id="@+id/btnEmail"
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:text="@string/email" />      
+          android:text="@string/email" 
+          android:textColor="#ffffff"
+           android:background="#1E90FF"/>      
       <Button
           android:id="@+id/btnShowDistance"
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:text="@string/show_distance" />
+          android:text="@string/show_distance"
+          android:textColor="#ffffff"
+          android:background="#1E90FF"/>
 
 </LinearLayout>

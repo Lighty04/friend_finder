@@ -11,19 +11,24 @@
           android:layout_height="50dp"
           android:textSize="21sp"
           android:hint="@string/poi_title"
+          android:inputType="text"
           android:layout_marginBottom="3dp"/>
 	
       <Button
           android:id="@+id/btnSave"
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:text="@string/popup_save_poi" />
+          android:text="@string/popup_save_poi"
+          android:background="#1E90FF"
+          android:textColor="#ffffff" />
 
       <Button
           android:id="@+id/btnBack"
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:text="@string/popup_close_poi" />
+          android:text="@string/popup_close_poi" 
+          android:background="#1E90FF"
+          android:textColor="#ffffff"/>
 
       
       
