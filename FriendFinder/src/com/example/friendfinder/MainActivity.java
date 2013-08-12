@@ -275,13 +275,6 @@ public class MainActivity extends FragmentActivity implements
 		};
 
 		Mmap.setOnMarkerClickListener(this);
-
-		Mmap.addMarker(new MarkerOptions()
-				.snippet("pos")
-				.position(new LatLng(0, 0))
-				.title("First Last")
-				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 		
 		Mmap.setOnMapLongClickListener(new OnMapLongClickListener() {
 			
@@ -519,6 +512,7 @@ public class MainActivity extends FragmentActivity implements
     					String newTitle = poiTitle.getText().toString().trim();
     					if(newTitle.length() > 0)
     					{
+    						Toast.makeText(MainActivity.this, "Going to save", Toast.LENGTH_SHORT).show();
     						Business.SaveAMarker("NA", newTitle, new ParseGeoPoint(arg0.getPosition().latitude, arg0.getPosition().longitude));
     						tempMarkers.add(arg0);
     						arg0.setDraggable(false);
@@ -526,6 +520,7 @@ public class MainActivity extends FragmentActivity implements
     					}
     					else
     					{
+    						Toast.makeText(MainActivity.this, "Please fill in the title", Toast.LENGTH_SHORT).show();
     						//poiTitle.setError("Fill in the title");
     					}
     					
@@ -568,18 +563,13 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	/*public void processFoundFriend(ParseUser usr) {
-		// Apres l'appel de la fonction Business.FindAFriend c'est ici qu'on
-		// recoit l'ami cherche
-		Log.d(DebugLoginTag,
-				((ParseObject) usr.get("Metadata")).get("FirstName").toString());
-		Log.d(DebugLoginTag, ((ParseObject) usr.get("Metadata"))
-				.get("LastName").toString());
-	}*/
-
 	public void processSearchFirstLastName(List<ParseUser> usrList) {
+		Log.d("LOGIN", "here");
 
 		for (ParseUser user : usrList) {
+			if(user == null){
+				continue;
+			}
 			ParseGeoPoint geoPoint = (ParseGeoPoint) user.get("position");
 
 			double longitude = geoPoint.getLongitude();
@@ -697,6 +687,7 @@ public class MainActivity extends FragmentActivity implements
 
 	public void errorFriendCircles(String errorMessage) {
 		Log.d(DebugLoginTag, errorMessage);
+		Toast.makeText(MainActivity.this, "Could not find friend", Toast.LENGTH_SHORT).show();
 		if(!cancelUpdate)
 		{
 			friendHandler.postDelayed(friendRunnable, friendsUpdateDelay);

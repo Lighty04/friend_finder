@@ -32,8 +32,9 @@ public class SettingsActivity extends Activity {
 		autoGeolocSwitch = (Switch) findViewById(R.id.geolocSwitch);
 		dataSwitch = (Switch) findViewById(R.id.dataSwitch);
 
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(getApplicationContext());
+//		SharedPreferences preferences = PreferenceManager
+//				.getDefaultSharedPreferences(getApplicationContext());
+		SharedPreferences preferences = getSharedPreferences("Settings", MODE_PRIVATE);
 
 		Boolean GPSSwitchStatus;
 		Boolean autoGeolocSwitchStatus;

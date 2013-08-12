@@ -228,23 +228,21 @@ public class DatabaseHelper {
 		 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
 		 
 		 ParseQuery<ParseObject> queryMetadata1 = ParseQuery.getQuery("Metadata");
+		 ParseQuery<ParseObject> queryMetadata2 = ParseQuery.getQuery("Metadata");
 		 if(nameParts.length == 2)
 		 {
 			 queryMetadata1.whereContains("FirstName", nameParts[0]);
 			 queryMetadata1.whereContains("LastName", nameParts[1]);
-			 
-			 ParseQuery<ParseObject> queryMetadata2 = ParseQuery.getQuery("Metadata");
 			 queryMetadata2.whereContains("FirstName", nameParts[1]);
 			 queryMetadata2.whereContains("LastName", nameParts[0]);	
-			 listQ.add(queryMetadata1);
-			 listQ.add(queryMetadata2);
 		 }
 		 else
 		 {
-			 
+			 queryMetadata1.whereContains("FirstName", name);
+			 queryMetadata2.whereContains("LastName", name);
 		 }
-		 			 
-		 
+		 listQ.add(queryMetadata1);
+		 listQ.add(queryMetadata2);
 		 
 		 ParseQuery<ParseObject> queryMetadata = ParseQuery.or(listQ);
 		 
@@ -262,7 +260,10 @@ public class DatabaseHelper {
 						 
 						 listPosition.add(new LatLng(parseObject.getParseGeoPoint("position").getLatitude(), parseObject.getParseGeoPoint("position").getLongitude()));
 					}*/
-					 ((MainActivity) context).processSearchFirstLastName(listUser);
+                	if(listUser.size() > 0)
+                		((MainActivity) context).processSearchFirstLastName(listUser);
+                	else
+                		((MainActivity) context).errorFriendCircles("User not found");
    				 }
    				 else
    				 {
@@ -378,6 +379,123 @@ public class DatabaseHelper {
 			     
 			    } else {
 			      Log.d("MyApp", "User logged in through Facebook!");
+			      final ParseUser current_user = ParseUser.getCurrentUser();
+					 
+					 List<ParseQuery<ParseObject>> listQ = new ArrayList<ParseQuery<ParseObject>>();
+
+					 
+					 ParseQuery<ParseObject> query1=ParseQuery.getQuery("UserCircle");
+					 query1.whereEqualTo("UserFriendId", current_user);
+					 
+					 
+					 ParseQuery<ParseObject> query2=ParseQuery.getQuery("UserCircle");
+					 query2.whereEqualTo("UserId", current_user);
+					 
+					 
+					 listQ.add(query1);
+					 listQ.add(query2);
+					 
+					 ParseQuery<ParseObject> query = ParseQuery.or(listQ);
+					 query.include("UserId.Metadata");
+					 query.include("UserFriendId.Metadata");
+					 
+					 
+					 
+					 query.findInBackground(new FindCallback<ParseObject>() {
+						 
+						public void done(List<ParseObject> list, ParseException e) {
+							final List<String> friendsIdsOld = new ArrayList<String>();
+							final List<String> friendsIds = new ArrayList<String>();
+							 if(e == null && list != null)
+							 {
+								 
+								 
+								 for (ParseObject parseObject : list) {
+									
+									 ParseUser usr1 = parseObject.getParseUser("UserFriendId");
+									 ParseUser usr2 = parseObject.getParseUser("UserId");
+									 
+									 Log.d("usr1", usr1.getUsername());
+									 Log.d("usr2", usr2.getUsername());
+									 
+									 if(usr1.get("username").toString().equals(ParseUser.getCurrentUser().getUsername().toString()))
+									 {
+										 
+										 friendsIdsOld.add(usr2.get("fbId").toString());
+									 }
+									 else
+									 {
+										 friendsIdsOld.add(usr1.get("fbId").toString());
+									 }
+								
+								}
+								 
+								 Request.executeMyFriendsRequestAsync(ParseFacebookUtils.getSession(), new GraphUserListCallback() {
+										
+										@Override
+										public void onCompleted(List<GraphUser> users, Response response) {
+											//CHECK RESPONSE
+											if(users != null)
+											{
+												//search for users logged with fb
+												for(GraphUser user : users)
+												{
+													friendsIds.add((String) user.getId());
+												}
+												ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
+												queryUser.whereContainedIn("fbId", friendsIds);
+												queryUser.whereNotContainedIn("fbId", friendsIdsOld);
+												queryUser.findInBackground(new FindCallback<ParseUser>() {
+													public void done(java.util.List<ParseUser> parseUsers, ParseException e) {
+														if(e == null)
+														{
+															if(parseUsers.size() > 0)
+															{
+																//create UserCircle
+																List<ParseObject> objects = new ArrayList<ParseObject>();
+																for(ParseUser usr : parseUsers)
+																{
+																	ParseObject obj = new ParseObject("UserCircle");
+																	obj.put("UserFriendId", ParseUser.getCurrentUser());
+																	obj.put("UserId", usr);
+																	objects.add(obj);
+																}
+																
+																ParseObject.saveAllInBackground(objects, new SaveCallback() {
+																	
+																	@Override
+																	public void done(ParseException e) {
+																		if(e == null)
+																		{
+																			Log.d("FromParse", "done");
+																			((LoginActivity) context).loginSuccessfull(user);
+																		}
+																		else
+																		{
+																			Log.d("FromParse", e.getMessage());
+																		}
+																	}
+																});
+															}
+														}
+														else
+														{
+															Log.d("AddFriends", e.getMessage());
+														}
+													};
+												});
+											}
+											
+										}
+									});
+								
+							 }
+							 else
+							 {
+								 //((MainActivity) context).errorFriendCircles(e.getMessage());
+							 }
+						}
+					});
 			      ((LoginActivity) context).loginSuccessfull(user);
 			    }
 			  }
